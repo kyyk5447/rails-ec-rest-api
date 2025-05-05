@@ -4,7 +4,7 @@ class Api::V1::Members::PurchasesController < ApplicationController
   PER_PAGE = 10
 
   def index
-    page = params[:page].to_i > 0 ? params[:page].to_i : 1
+    page = params[:page].to_i.positive? ? params[:page].to_i : 1
     @purchases = current_member.purchases.includes(purchase_items: :item).order(created_at: :desc).page(page).per(PER_PAGE)
   end
 

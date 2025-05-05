@@ -5,7 +5,7 @@ class Api::V1::Owners::ItemsController < ApplicationController
   PER_PAGE = 10
 
   def index
-    page = params[:page].to_i > 0 ? params[:page].to_i : 1
+    page = params[:page].to_i.positive? ? params[:page].to_i : 1
     @items = current_owner_items.page(page).per(PER_PAGE)
   end
 

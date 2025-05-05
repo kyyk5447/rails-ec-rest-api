@@ -4,7 +4,7 @@ class Api::V1::Owners::PurchasesController < ApplicationController
   PER_PAGE = 10
 
   def index
-    page = params[:page].to_i > 0 ? params[:page].to_i : 1
+    page = params[:page].to_i.positive? ? params[:page].to_i : 1
     shop = Shop.find(params[:shop_id])
     @purchases = Purchase.joins(purchase_items: :item)
                          .where(items: { shop_id: shop.id })

@@ -1,7 +1,7 @@
 # db/seeds.rb
 
 # 🔄 初期化
-puts 'Seeding data...'
+Rails.logger.info 'Seeding data...'
 CartItem.delete_all
 Cart.delete_all
 FavoriteItem.delete_all
@@ -115,4 +115,4 @@ Review.create!(
   rating: 5
 )
 
-puts '✅ Done!'
+Rails.logger.info '✅ Done!'

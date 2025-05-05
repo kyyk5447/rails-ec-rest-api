@@ -8,7 +8,7 @@ json.purchases do
       pi.item.shop_id == params[:shop_id].to_i
     end
 
-    json.totalItems(filtered_items.sum { |pi| pi.quantity })
+    json.totalItems(filtered_items.sum(&:quantity))
 
     json.totalAmount filtered_items.sum(&:subtotal)
   end
