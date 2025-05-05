@@ -44,9 +44,8 @@ class Api::V1::Members::PurchasesController < ApplicationController
 
         purchase.update!(total_price: total_price)
         current_member.cart.destroy
-
-        return render json: { message: '購入が完了しました。' }, status: :created
       end
+      render json: { message: '購入が完了しました。' }, status: :created
     rescue StandardError => e
       render json: { error: e.message }, status: :unprocessable_entity
     end
