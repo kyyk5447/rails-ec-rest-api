@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  purchase: one
+  item: one
+  quentity: 1
+  subtotal: 1
+
+two:
+  purchase: two
+  item: two
+  quentity: 1
+  subtotal: 1

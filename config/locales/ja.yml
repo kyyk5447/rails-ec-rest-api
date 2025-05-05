@@ -1,0 +1,26 @@
+ja:
+  activerecord:
+    errors:
+      messages:
+        blank: "を入力してください。"
+        too_short: "%{attribute}は%{count}文字以上で入力してください。"
+        too_long: "%{attribute}は%{count}文字以内で入力してください。"
+        taken: "このメールアドレスは既に使用されています。"
+        greater_than_or_equal_to: "%{count}以上で入力してください。"
+        inclusion: "選択肢に存在しません"
+  attributes:
+    first_name: "名"
+    last_name: "姓"
+    first_name_kana: "名（カナ）"
+    last_name_kana: "姓（カナ）"
+    tel: "電話番号"
+    gender: "性別"
+    birthday: "生年月日"
+    email: "メールアドレス"
+    password: "パスワード"
+    password_confirmation: "パスワード"
+    name: "名前"
+    description: "説明"
+    price: "価格"
+    stock: "在庫"
+    status: "状態"
