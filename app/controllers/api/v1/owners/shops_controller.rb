@@ -1,6 +1,6 @@
 class Api::V1::Owners::ShopsController < ApplicationController
   before_action :authenticate_owner!
-  before_action :set_shop, only: [:show, :update, :destroy]
+  before_action :set_shop, only: %i[show update destroy]
 
   PER_PAGE = 10
 
@@ -9,8 +9,7 @@ class Api::V1::Owners::ShopsController < ApplicationController
     @shops = current_owner.shops.page(page).per(PER_PAGE)
   end
 
-  def show
-  end
+  def show; end
 
   def create
     shop = current_owner.shops.new(shop_params)

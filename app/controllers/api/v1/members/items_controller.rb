@@ -1,5 +1,4 @@
 class Api::V1::Members::ItemsController < ApplicationController
-
   PER_PAGE = 10
 
   def index
@@ -9,6 +8,6 @@ class Api::V1::Members::ItemsController < ApplicationController
 
   def show
     @item = Item.includes(:reviews).find_by(id: params[:id])
-    return render json: { message: '商品が見つかりませんでした。' }, status: :not_found if @item.blank?
+    render json: { message: '商品が見つかりませんでした。' }, status: :not_found if @item.blank?
   end
 end

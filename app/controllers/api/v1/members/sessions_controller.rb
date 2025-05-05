@@ -30,6 +30,5 @@ class Api::V1::Members::SessionsController < Devise::SessionsController
     { scope: resource_name, recall: "#{controller_path}#sign_in_failed" }
   end
 
-  def respond_to_on_destroy
-  end
+  def respond_to_on_destroy; end
 end

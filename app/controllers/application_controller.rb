@@ -13,14 +13,14 @@ class ApplicationController < ActionController::API
   end
 
   def authenticate_owner!
-    unless owner_signed_in?
-      render_unauthorized
-    end
+    return if owner_signed_in?
+
+    render_unauthorized
   end
 
   def authenticate_member!
-    unless member_signed_in?
-      render_unauthorized
-    end
+    return if member_signed_in?
+
+    render_unauthorized
   end
 end

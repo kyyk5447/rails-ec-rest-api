@@ -7,12 +7,13 @@ class Api::V1::Members::RegistersController < ApplicationController
     begin
       member.save!
       sign_in(:member, member)
-    rescue StandardError => e
+    rescue StandardError
       render json: { errors: member.errors.messages.values.flatten }, status: :unprocessable_entity
     end
   end
 
   def register_params
-    params.require(:member).permit(:first_name, :first_name_kana, :last_name, :last_name_kana, :tel, :gender, :birthday, :email, :password, :password_confirmation)
+    params.require(:member).permit(:first_name, :first_name_kana, :last_name, :last_name_kana, :tel, :gender,
+                                   :birthday, :email, :password, :password_confirmation)
   end
 end

@@ -3,7 +3,7 @@ class Member < ApplicationRecord
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
-  
+
   has_many :shipping_info, dependent: :destroy
   has_one :cart, dependent: :destroy
   has_many :purchases, dependent: :destroy
@@ -13,14 +13,14 @@ class Member < ApplicationRecord
 
   KATAKANA_REGEX = /\A[\p{katakana}\u{30fc}]+\z/
 
-  enum gender: {
+  enum :gender, {
     not_specified: 0,
     male: 1,
     female: 2
   }
 
   validates :first_name, :last_name, presence: true, length: { maximum: 20 }
-  validates :first_name_kana, 
+  validates :first_name_kana,
             presence: true,
             length: { maximum: 20 },
             format: { with: KATAKANA_REGEX, message: 'カタカナで入力してください。' },

@@ -11,7 +11,7 @@ class Owner < ApplicationRecord
   validates :first_name, presence: true, length: { maximum: 20 }
   validates :last_name,  presence: true, length: { maximum: 20 }
 
-  validates :first_name_kana, 
+  validates :first_name_kana,
             presence: true,
             length: { maximum: 20 },
             format: { with: KATAKANA_REGEX, message: 'カタカナで入力してください' },

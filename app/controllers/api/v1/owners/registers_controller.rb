@@ -7,7 +7,7 @@ class Api::V1::Owners::RegistersController < ApplicationController
     begin
       owner.save!
       sign_in(:owner, owner)
-    rescue StandardError => e
+    rescue StandardError
       render json: { errors: owner.errors.messages.values.flatten }, status: :unprocessable_entity
     end
   end
@@ -15,6 +15,7 @@ class Api::V1::Owners::RegistersController < ApplicationController
   private
 
   def register_params
-    params.require(:owner).permit(:first_name, :first_name_kana, :last_name, :last_name_kana, :email, :password, :password_confirmation)
+    params.require(:owner).permit(:first_name, :first_name_kana, :last_name, :last_name_kana, :email, :password,
+                                  :password_confirmation)
   end
 end

@@ -1,6 +1,6 @@
 class Api::V1::Owners::ReleaseInfoController < ApplicationController
   before_action :authenticate_owner!
-  before_action :set_release_info, only: [:show, :update, :destroy]
+  before_action :set_release_info, only: %i[show update destroy]
 
   PER_PAGE = 10
 
@@ -9,12 +9,12 @@ class Api::V1::Owners::ReleaseInfoController < ApplicationController
     @release_info = current_owner_release_info.order(created_at: :desc).page(page).per(PER_PAGE)
   end
 
-  def show
-  end
+  def show; end
 
   def create
     shop = current_owner.shops.find_by(id: release_info_params[:shop_id])
     return render json: { message: 'ショップが見つかりませんでした。' }, status: :not_found if shop.blank?
+
     release_info = shop.release_info.build(release_info_params)
     if release_info.save
       head :no_content

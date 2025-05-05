@@ -15,6 +15,7 @@ class Api::V1::Owners::MembersController < ApplicationController
   end
 
   def profile_update_params
-    params.require(:owner).permit(:first_name, :first_name_kana, :last_name, :last_name_kana, :email, :password, :password_confirmation)
+    params.require(:owner).permit(:first_name, :first_name_kana, :last_name, :last_name_kana, :email, :password,
+                                  :password_confirmation)
   end
 end

@@ -1,5 +1,4 @@
 class Api::V1::Members::ReviewsController < ApplicationController
-
   PER_PAGE = 10
 
   def index

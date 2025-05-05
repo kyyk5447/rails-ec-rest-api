@@ -1,6 +1,6 @@
 class Api::V1::Owners::ItemsController < ApplicationController
   before_action :authenticate_owner!
-  before_action :set_item, only: [:show, :update, :destroy]
+  before_action :set_item, only: %i[show update destroy]
 
   PER_PAGE = 10
 
@@ -9,12 +9,12 @@ class Api::V1::Owners::ItemsController < ApplicationController
     @items = current_owner_items.page(page).per(PER_PAGE)
   end
 
-  def show
-  end
+  def show; end
 
   def create
     shop = current_owner.shops.find_by(id: item_params[:shop_id])
     return render json: { message: 'ショップが見つかりませんでした。' }, status: :not_found if shop.blank?
+
     item = shop.items.build(item_params)
     if item.save
       head :no_content
@@ -55,7 +55,7 @@ class Api::V1::Owners::ItemsController < ApplicationController
     permitted[:price] = permitted[:price].to_i if permitted[:price].present?
     permitted[:stock] = permitted[:stock].to_i if permitted[:stock].present?
     permitted[:status] = permitted[:status].to_i if permitted[:status].present?
-  
+
     permitted
   end
 end

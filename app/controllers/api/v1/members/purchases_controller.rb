@@ -13,9 +13,7 @@ class Api::V1::Members::PurchasesController < ApplicationController
     return render json: { message: '商品をカートに追加してください。' }, status: :not_found if cart.blank?
 
     cart_items = cart.cart_items.includes(:item)
-    if cart_items.empty?
-      return render json: { error: "カートが空です。" }, status: :unprocessable_entity
-    end
+    return render json: { error: 'カートが空です。' }, status: :unprocessable_entity if cart_items.empty?
 
     cart_items.each do |cart_item|
       if cart_item.item.stock < cart_item.quantity
@@ -47,7 +45,7 @@ class Api::V1::Members::PurchasesController < ApplicationController
         purchase.update!(total_price: total_price)
         current_member.cart.destroy
 
-        return render json: { message: "購入が完了しました。" }, status: :created
+        return render json: { message: '購入が完了しました。' }, status: :created
       end
     rescue StandardError => e
       render json: { error: e.message }, status: :unprocessable_entity

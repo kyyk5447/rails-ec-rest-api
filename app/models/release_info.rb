@@ -1,10 +1,10 @@
 class ReleaseInfo < ApplicationRecord
   belongs_to :shop
 
-  enum status: {
+  enum :status, {
     unpublished: 0,
     draft: 1,
-    published: 2,
+    published: 2
   }
 
   validates :title, presence: true

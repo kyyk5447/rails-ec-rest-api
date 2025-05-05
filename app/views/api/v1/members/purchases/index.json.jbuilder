@@ -3,12 +3,12 @@ json.purchases do
     json.id purchase.id
     json.totalPrice purchase.total_price
     json.createdAt purchase.created_at
-  
+
     json.purchaseItems purchase.purchase_items do |purchase_item|
       json.id purchase_item.id
       json.quantity purchase_item.quantity
       json.subtotal purchase_item.subtotal
-  
+
       json.item do
         item = purchase_item.item
         json.id item.id
@@ -29,4 +29,3 @@ json.totalCount @purchases.total_count
 json.currentPage @purchases.current_page
 json.nextPage @purchases.next_page
 json.hasNext @purchases.next_page.present?
-

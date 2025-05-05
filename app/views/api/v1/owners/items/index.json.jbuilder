@@ -8,7 +8,7 @@ json.items do
     json.stock item.stock
     json.status item.status_before_type_cast
     json.createdAt item.created_at
-  
+
     json.shop do
       json.id item.shop.id
       json.name item.shop.name
@@ -22,4 +22,3 @@ json.totalCount @items.total_count
 json.currentPage @items.current_page
 json.nextPage @items.next_page
 json.hasNext @items.next_page.present?
-

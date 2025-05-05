@@ -1,5 +1,4 @@
 class Api::V1::Members::ShopsController < ApplicationController
-
   PER_PAGE = 10
 
   def index
@@ -9,6 +8,6 @@ class Api::V1::Members::ShopsController < ApplicationController
 
   def show
     @shop = Shop.includes(:items).find_by(id: params[:id])
-    return render json: { message: 'ショップが見つかりませんでした。' }, status: :not_found if @shop.blank?
+    render json: { message: 'ショップが見つかりませんでした。' }, status: :not_found if @shop.blank?
   end
 end

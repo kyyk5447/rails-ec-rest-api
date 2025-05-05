@@ -4,7 +4,7 @@ class Item < ApplicationRecord
   belongs_to :shop
   has_many :reviews, dependent: :destroy
 
-  enum status: {
+  enum :status, {
     unpublished: 0,
     published: 1
   }

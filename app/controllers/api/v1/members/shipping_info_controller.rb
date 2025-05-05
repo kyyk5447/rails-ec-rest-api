@@ -7,7 +7,7 @@ class Api::V1::Members::ShippingInfoController < ApplicationController
 
   def show
     @shipping_info = current_member.shipping_info.find_by(id: params[:id])
-    return render json: { message: '発送情報が見つかりませんでした。' }, status: :not_found if @shipping_info.blank?
+    render json: { message: '発送情報が見つかりませんでした。' }, status: :not_found if @shipping_info.blank?
   end
 
   def create
