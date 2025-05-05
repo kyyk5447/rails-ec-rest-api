@@ -15,5 +15,6 @@ module App
     config.session_store :cookie_store, key: '_your_app_session'
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use config.session_store, config.session_options
+    config.hosts << "rails-ec-rest-api.onrender.com"
   end
 end
