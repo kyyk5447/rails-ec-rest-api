@@ -59,5 +59,17 @@ end
 group :development do
   # Load environment variables from .env in development [https://github.com/bkeepers/dotenv]
   gem "dotenv-rails"
+
+  # RuboCop for Rails, a static code analyzer for Ruby and Rails code [https://github.com/rubocop/rubocop-rails]
+  gem 'rubocop-rails', require: false
+
+  # RuboCop, a static code analyzer for Ruby [https://github.com/rubocop/rubocop]
+  gem 'rubocop', require: false
+
+  # RuboCop RSpec, a set of RSpec-specific RuboCop rules [https://github.com/rubocop/rubocop-rspec]
+  gem 'rubocop-rspec', require: false
+
+  # RuboCop Performance, a set of performance-related rules for RuboCop [https://github.com/rubocop/rubocop-performance]
+  gem 'rubocop-performance', require: false
 end
 
