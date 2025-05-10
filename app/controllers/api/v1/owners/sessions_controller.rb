@@ -7,7 +7,7 @@ class Api::V1::Owners::SessionsController < Devise::SessionsController
       sign_in(resource_name, resource)
       render json: { message: 'ログインに成功しました。' }
     else
-      render json: { errors: ['メールアドレスまたはパスワードが違います。'] }, status: :unprocessable_entity
+      render json: { errors: ['メールアドレスまたはパスワードが違います。'] }, status: :unauthorized
     end
   end
 
