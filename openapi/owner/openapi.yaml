@@ -1,0 +1,1334 @@
+openapi: 3.0.0
+info:
+  title: EC Site Owner API
+  version: 1.0.0
+  description: ECサイトのオーナー向けAPI
+
+servers:
+  - url: http://localhost:3001/api/v1/owners
+
+tags:
+  - name: Authentication
+    description: 認証関連
+  - name: Owner
+    description: オーナー情報管理
+  - name: Shop
+    description: ショップ管理
+  - name: Item
+    description: 商品管理
+  - name: ReleaseInfo
+    description: お知らせ管理
+  - name: Purchase
+    description: 購入履歴管理
+
+paths:
+  /csrf:
+    get:
+      tags:
+        - Authentication
+      summary: CSRFトークンを取得
+      responses:
+        "200":
+          description: 取得成功
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - csrfToken
+                properties:
+                  csrfToken:
+                    type: string
+                    example: "3Hlq7LpQ2-gGlq1KMKowhRdiNTvPLJ2ehrBsfn_8KeWF-uqhJWPOyuBCYtz4JE1WdQxxVOZ1yD7OX8wACYOU5g"
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+
+  /sign_up:
+    post:
+      tags:
+        - Authentication
+      summary: オーナー登録
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - owner
+              properties:
+                owner:
+                  type: object
+                  required:
+                    - firstName
+                    - lastName
+                    - firstNameKana
+                    - lastNameKana
+                    - email
+                    - password
+                    - passwordConfirmation
+                  properties:
+                    firstName:
+                      type: string
+                      example: "山田"
+                    firstNameKana:
+                      type: string
+                      example: "ヤマダ"
+                    lastName:
+                      type: string
+                      example: "太郎"
+                    lastNameKana:
+                      type: string
+                      example: "タロウ"
+                    email:
+                      type: string
+                      example: "test1@example.com"
+                    password:
+                      type: string
+                      example: "Test1111"
+                    passwordConfirmation:
+                      type: string
+                      example: "Test1111"
+      responses:
+        "204":
+          description: 登録成功
+        "422":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /sign_in:
+    post:
+      tags:
+        - Authentication
+      summary: オーナー認証
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - owner
+              properties:
+                owner:
+                  type: object
+                  required:
+                    - email
+                    - password
+                  properties:
+                    email:
+                      type: string
+                      example: "test1@example.com"
+                    password:
+                      type: string
+                      example: "Test1111"
+      responses:
+        "200":
+          description: 認証成功
+        "401":
+          description: 認証失敗
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - errors
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: ["メールアドレスまたはパスワードが違います。"]
+
+  /sign_out:
+    delete:
+      tags:
+        - Authentication
+      summary: ログアウト
+      security:
+        - cookieAuth: []
+        - csrfToken: []
+      responses:
+        "200":
+          description: ログアウト成功
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+              examples:
+                success:
+                  summary: ログアウト成功時
+                  value:
+                    message: "ログアウトに成功しました。"
+                already:
+                  summary: 既にログアウト済みの場合
+                  value:
+                    message: "既にログアウトは完了しています。"
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+
+  /identity:
+    get:
+      tags:
+        - Owner
+      summary: オーナー情報取得
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Owner"
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+
+  /profile:
+    patch:
+      tags:
+        - Owner
+      summary: オーナー情報更新
+      security:
+        - cookieAuth: []
+        - csrfToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: ["owner"]
+              properties:
+                owner:
+                  type: object
+                  required:
+                    [
+                      "email",
+                      "firstName",
+                      "lastName",
+                      "firstNameKana",
+                      "lastNameKana",
+                    ]
+                  properties:
+                    firstName:
+                      type: string
+                      example: "西田"
+                    firstNameKana:
+                      type: string
+                      example: "ニシダ"
+                    lastName:
+                      type: string
+                      example: "太郎"
+                    lastNameKana:
+                      type: string
+                      example: "タロウ"
+                    email:
+                      type: string
+                      example: "test1@example.com"
+                    password:
+                      type: string
+                      example: "Test1111"
+                    passwordConfirmation:
+                      type: string
+                      example: "Test1111"
+      responses:
+        "204":
+          description: 更新成功
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+        "422":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /shops:
+    get:
+      tags:
+        - Shop
+      summary: ショップ一覧取得
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    required:
+                      - shops
+                    properties:
+                      shops:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Shop"
+                  - $ref: "#/components/schemas/PaginatedResponse"
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+
+    post:
+      tags:
+        - Shop
+      summary: ショップ作成
+      security:
+        - cookieAuth: []
+        - csrfToken: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                image:
+                  type: string
+                  format: binary
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        "204":
+          description: 作成成功
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+        "422":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /shops/{id}:
+    get:
+      tags:
+        - Shop
+      summary: ショップ詳細取得
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Shop"
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+        "404":
+          description: 対象のデータが存在しなかった場合
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "対象のショップが見つかりませんでした。"
+
+    put:
+      tags:
+        - Shop
+      summary: ショップ更新
+      security:
+        - cookieAuth: []
+        - csrfToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                image:
+                  type: string
+                  format: binary
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        "204":
+          description: 更新成功
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+        "404":
+          description: 対象のデータが存在しなかった場合
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "対象のショップが見つかりませんでした。"
+        "422":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    delete:
+      tags:
+        - Shop
+      summary: ショップ削除
+      security:
+        - cookieAuth: []
+        - csrfToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: 削除成功
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+        "404":
+          description: 対象のデータが存在しなかった場合
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "対象のショップが見つかりませんでした。"
+
+  /items:
+    get:
+      tags:
+        - Item
+      summary: 商品一覧取得
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    required:
+                      - items
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Item"
+                  - $ref: "#/components/schemas/PaginatedResponse"
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+
+    post:
+      tags:
+        - Item
+      summary: 商品作成
+      security:
+        - cookieAuth: []
+        - csrfToken: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - name
+                - price
+                - stock
+              properties:
+                image:
+                  type: string
+                  format: binary
+                name:
+                  type: string
+                description:
+                  type: string
+                price:
+                  type: integer
+                stock:
+                  type: integer
+      responses:
+        "204":
+          description: 作成成功
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+        "422":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /items/{id}:
+    get:
+      tags:
+        - Item
+      summary: 商品詳細取得
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Item"
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+        "404":
+          description: 対象のデータが存在しなかった場合
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "商品が見つかりませんでした。"
+
+    put:
+      tags:
+        - Item
+      summary: 商品更新
+      security:
+        - cookieAuth: []
+        - csrfToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - name
+                - price
+                - stock
+                - status
+              properties:
+                image:
+                  type: string
+                  format: binary
+                name:
+                  type: string
+                description:
+                  type: string
+                price:
+                  type: integer
+                stock:
+                  type: integer
+                status:
+                  type: integer
+      responses:
+        "204":
+          description: 更新成功
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+        "404":
+          description: 対象のデータが存在しなかった場合
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "商品が見つかりませんでした。"
+        "422":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    delete:
+      tags:
+        - Item
+      summary: 商品削除
+      security:
+        - cookieAuth: []
+        - csrfToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: 削除成功
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+        "404":
+          description: 対象のデータが存在しなかった場合
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "商品が見つかりませんでした。"
+
+  /release_info:
+    get:
+      tags:
+        - ReleaseInfo
+      summary: お知らせ一覧取得
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    required:
+                      - releaseInfo
+                    properties:
+                      releaseInfo:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ReleaseInfo"
+                  - $ref: "#/components/schemas/PaginatedResponse"
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+
+    post:
+      tags:
+        - ReleaseInfo
+      summary: お知らせ作成
+      security:
+        - cookieAuth: []
+        - csrfToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - release_info
+              properties:
+                release_info:
+                  type: object
+                  required:
+                    - shop_id
+                    - title
+                    - body
+                    - status
+                  properties:
+                    shop_id:
+                      type: integer
+                      example: 47
+                    title:
+                      type: string
+                      example: "新商品入荷のお知らせ"
+                    body:
+                      type: string
+                      example: "春の新作アイテムが入荷しました。ぜひチェックしてください。"
+                    status:
+                      type: integer
+                      example: 2
+      responses:
+        "204":
+          description: 作成成功
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+        "422":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /release_info/{id}:
+    get:
+      tags:
+        - ReleaseInfo
+      summary: お知らせ詳細取得
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReleaseInfo"
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+        "404":
+          description: 対象のデータが存在しなかった場合
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "対象のお知らせが見つかりませんでした。"
+
+    patch:
+      tags:
+        - ReleaseInfo
+      summary: お知らせ更新
+      security:
+        - cookieAuth: []
+        - csrfToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - release_info
+              properties:
+                release_info:
+                  type: object
+                  required:
+                    - title
+                    - body
+                    - status
+                  properties:
+                    title:
+                      type: string
+                      example: "新商品入荷のお知らせ"
+                    body:
+                      type: string
+                      example: "春の新作アイテムが入荷しました。ぜひチェックしてください。"
+                    status:
+                      type: integer
+                      example: 2
+      responses:
+        "204":
+          description: 更新成功
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+        "404":
+          description: 対象のデータが存在しなかった場合
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "対象のお知らせが見つかりませんでした。"
+        "422":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    delete:
+      tags:
+        - ReleaseInfo
+      summary: お知らせ削除
+      security:
+        - cookieAuth: []
+        - csrfToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: 削除成功
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+        "404":
+          description: 対象のデータが存在しなかった場合
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "対象のお知らせが見つかりませんでした。"
+
+  /purchases:
+    get:
+      tags:
+        - Purchase
+      summary: 購入履歴一覧取得
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: shop_id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    required:
+                      - purchases
+                    properties:
+                      purchases:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Purchase"
+                  - $ref: "#/components/schemas/PaginatedResponse"
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+
+  /purchases/{id}:
+    get:
+      tags:
+        - Purchase
+      summary: 購入履歴詳細取得
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: shop_id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Purchase"
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+        "404":
+          description: 対象のデータが存在しなかった場合
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "対象の購入履歴が見つかりませんでした"
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: _session_id
+    csrfToken:
+      type: apiKey
+      in: header
+      name: X-CSRF-TOKEN
+      description: CSRFトークン
+
+  schemas:
+    Error:
+      type: object
+      required:
+        - errors
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
+            example: "バリデーションエラーが発生しました"
+
+    Owner:
+      type: object
+      required:
+        - firstName
+        - firstNameKana
+        - lastName
+        - lastNameKana
+        - email
+      properties:
+        firstName:
+          type: string
+          example: "西田"
+        firstNameKana:
+          type: string
+          example: "ニシダ"
+        lastName:
+          type: string
+          example: "太郎"
+        lastNameKana:
+          type: string
+          example: "タロウ"
+        email:
+          type: string
+          example: "test1@example.com"
+
+    Shop:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - createdAt
+      properties:
+        id:
+          type: integer
+          example: 1
+        imageUrl:
+          type: string
+          example: "https://example.com/images/shops/1.jpg"
+        name:
+          type: string
+          example: "モードスタイル"
+        description:
+          type: string
+          example: "最新トレンドを取り入れたアパレルショップ"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-04-19T10:00:00.000Z"
+
+    Item:
+      type: object
+      required:
+        - id
+        - name
+        - price
+        - stock
+        - status
+        - createdAt
+        - shop
+      properties:
+        id:
+          type: integer
+          example: 1
+        imageUrl:
+          type: string
+          example: "https://example.com/images/items/1.jpg"
+        name:
+          type: string
+          example: "ベーシックTシャツ"
+        description:
+          type: string
+          example: "着回し抜群のコットンTシャツ"
+        price:
+          type: integer
+          example: 1980
+        stock:
+          type: integer
+          example: 100
+        status:
+          type: integer
+          example: 1
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-04-19T10:00:00.000Z"
+        shop:
+          $ref: "#/components/schemas/Shop"
+
+    ReleaseInfo:
+      type: object
+      required:
+        - id
+        - title
+        - body
+        - status
+        - shop
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "新商品入荷のお知らせ"
+        body:
+          type: string
+          example: "春の新作アイテムが入荷しました。ぜひチェックしてください。"
+        status:
+          type: integer
+          example: 1
+        shop:
+          $ref: "#/components/schemas/Shop"
+
+    Purchase:
+      type: object
+      required:
+        - id
+        - purchasedAt
+        - memberName
+        - items
+        - totalItems
+        - totalAmount
+      properties:
+        id:
+          type: integer
+          example: 1
+        purchasedAt:
+          type: string
+          format: date-time
+          example: "2024-04-19T10:00:00.000Z"
+        memberName:
+          type: string
+          example: "佐藤 花子"
+        items:
+          type: array
+          items:
+            type: object
+            required:
+              - id
+              - name
+              - quantity
+              - price
+              - subtotal
+            properties:
+              id:
+                type: integer
+                example: 1
+              name:
+                type: string
+                example: "ベーシックTシャツ"
+              quantity:
+                type: integer
+                example: 1
+              price:
+                type: integer
+                example: 1980
+              subtotal:
+                type: integer
+                example: 1980
+        totalItems:
+          type: integer
+          example: 1
+        totalAmount:
+          type: integer
+          example: 1980
+
+    PaginatedResponse:
+      type: object
+      required:
+        - totalPages
+        - totalCount
+        - currentPage
+        - hasNext
+      properties:
+        totalPages:
+          type: integer
+          example: 10
+        totalCount:
+          type: integer
+          example: 100
+        currentPage:
+          type: integer
+          example: 1
+        nextPage:
+          type: integer
+          example: 2
+        hasNext:
+          type: boolean
+          example: true
