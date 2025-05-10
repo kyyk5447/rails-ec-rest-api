@@ -1,0 +1,1 @@
+json.csrfToken @csrf_token
