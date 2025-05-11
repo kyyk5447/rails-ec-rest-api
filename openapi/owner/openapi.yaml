@@ -231,18 +231,17 @@ paths:
           application/json:
             schema:
               type: object
-              required: ["owner"]
+              required:
+                - owner
               properties:
                 owner:
                   type: object
                   required:
-                    [
-                      "email",
-                      "firstName",
-                      "lastName",
-                      "firstNameKana",
-                      "lastNameKana",
-                    ]
+                    - firstName
+                    - firstNameKana
+                    - lastName
+                    - lastNameKana
+                    - email
                   properties:
                     firstName:
                       type: string
