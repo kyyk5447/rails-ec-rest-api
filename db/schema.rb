@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_05_17_120001) do
+ActiveRecord::Schema[7.1].define(version: 2025_05_17_130256) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -38,6 +38,21 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_17_120001) do
     t.datetime "updated_at", null: false
     t.index ["item_id"], name: "index_favorite_items_on_item_id"
     t.index ["member_id"], name: "index_favorite_items_on_member_id"
+  end
+
+  create_table "item_categories", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "item_category_assignments", force: :cascade do |t|
+    t.bigint "item_id", null: false
+    t.bigint "item_category_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["item_category_id"], name: "index_item_category_assignments_on_item_category_id"
+    t.index ["item_id"], name: "index_item_category_assignments_on_item_id"
   end
 
   create_table "items", force: :cascade do |t|
@@ -173,6 +188,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_17_120001) do
   add_foreign_key "carts", "members"
   add_foreign_key "favorite_items", "items"
   add_foreign_key "favorite_items", "members"
+  add_foreign_key "item_category_assignments", "item_categories"
+  add_foreign_key "item_category_assignments", "items"
   add_foreign_key "items", "shops"
   add_foreign_key "purchase_items", "items"
   add_foreign_key "purchase_items", "purchases"

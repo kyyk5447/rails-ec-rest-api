@@ -10,14 +10,17 @@ Purchase.delete_all
 Review.delete_all
 ReleaseInfo.delete_all
 ShippingInfo.delete_all
+ItemCategoryAssignment.delete_all
 Item.delete_all
 ShopCategoryAssignment.delete_all
 Shop.delete_all
 ShopCategory.delete_all
+ItemCategory.delete_all
 Owner.delete_all
 Member.delete_all
 
 # 👤 オーナー作成
+puts "Creating owners..."
 owner1 = Owner.create!(
   email: 'owner1@example.com',
   password: 'password',
@@ -37,6 +40,7 @@ owner2 = Owner.create!(
 )
 
 # 👥 会員作成
+puts "Creating members..."
 member1 = Member.create!(
   email: 'member1@example.com',
   password: 'password',
@@ -62,6 +66,7 @@ member2 = Member.create!(
 )
 
 # 📦 配送情報
+puts "Creating shipping info..."
 shipping_info1 = ShippingInfo.create!(
   member: member1,
   postal_code: '150-0001',
@@ -83,60 +88,62 @@ shipping_info2 = ShippingInfo.create!(
 )
 
 # 🏪 ショップカテゴリー作成
-ShopCategory.all_categories.each(&:save!)
+puts "Creating shop categories..."
+ShopCategory.find_or_create_by!(id: 1, name: "メンズファッション")
+ShopCategory.find_or_create_by!(id: 2, name: "レディースファッション")
+ShopCategory.find_or_create_by!(id: 3, name: "キッズファッション")
+ShopCategory.find_or_create_by!(id: 4, name: "シューズ")
+ShopCategory.find_or_create_by!(id: 5, name: "バッグ")
+ShopCategory.find_or_create_by!(id: 6, name: "アクセサリー")
+ShopCategory.find_or_create_by!(id: 7, name: "スポーツ")
+ShopCategory.find_or_create_by!(id: 8, name: "アウトドア")
+ShopCategory.find_or_create_by!(id: 9, name: "コスメ・美容")
+ShopCategory.find_or_create_by!(id: 10, name: "ヘルス・ボディケア")
+ShopCategory.find_or_create_by!(id: 11, name: "フード・グルメ")
+ShopCategory.find_or_create_by!(id: 12, name: "インテリア・雑貨")
+
+# 👕 商品カテゴリー作成
+puts "Creating item categories..."
+ItemCategory.all_categories.each do |category|
+  ItemCategory.find_or_create_by!(id: category.id, name: category.name)
+end
 
 # 🏬 ショップ作成
+puts "Creating shops..."
 mens_shop = Shop.create!(
   owner: owner1,
   name: 'メンズスタイル東京',
-  description: '上質な素材とモダンなデザインにこだわった、大人のためのメンズファッションを提供。トレンドと品質を両立させた商品を取り揃え、お客様のスタイリッシュな装いをサポートします。',
-  shop_categories: [ShopCategory.find_by_id(ShopCategory::MENS_FASHION)]
+  description: '上質な素材とモダンなデザインにこだわった、大人のためのメンズファッションを提供。',
+  shop_categories: [ShopCategory.find_by_id(1)] # メンズファッション
 )
 
 womens_shop = Shop.create!(
   owner: owner1,
   name: 'レディースコレクション',
-  description: '女性の毎日を彩るトレンド感のある商品をセレクト。カジュアルからフォーマルまで、様々なシーンに対応したアイテムを提供し、お客様の個性的なスタイリングをお手伝いします。',
-  shop_categories: [ShopCategory.find_by_id(ShopCategory::WOMENS_FASHION)]
+  description: '女性の毎日を彩るトレンド感のある商品をセレクト。',
+  shop_categories: [ShopCategory.find_by_id(2)] # レディースファッション
 )
 
 accessory_shop = Shop.create!(
   owner: owner2,
   name: 'アクセサリーワールド',
-  description: 'トレンディで洗練されたアクセサリーを豊富に取り揃えています。シンプルな普段使いのアイテムから、特別な日のための華やかなピースまで、幅広いコレクションをご用意。',
+  description: 'トレンディで洗練されたアクセサリーを豊富に取り揃えています。',
   shop_categories: [
-    ShopCategory.find_by_id(ShopCategory::ACCESSORIES),
-    ShopCategory.find_by_id(ShopCategory::BAGS)
-  ]
-)
-
-sports_shop = Shop.create!(
-  owner: owner2,
-  name: 'スポーツライフ',
-  description: 'アクティブなライフスタイルを応援するスポーツ用品店。最新のトレーニングウェアからプロ仕様の本格的な用具まで、幅広い商品を取り扱っています。',
-  shop_categories: [
-    ShopCategory.find_by_id(ShopCategory::SPORTS),
-    ShopCategory.find_by_id(ShopCategory::OUTDOOR)
-  ]
-)
-
-beauty_shop = Shop.create!(
-  owner: owner2,
-  name: 'ビューティーハウス',
-  description: '自然由来の原料にこだわったコスメや、オーガニックスキンケア製品を中心に取り扱うビューティーショップ。お客様の美しさと健康をトータルでサポートします。',
-  shop_categories: [
-    ShopCategory.find_by_id(ShopCategory::BEAUTY),
-    ShopCategory.find_by_id(ShopCategory::HEALTH)
+    ShopCategory.find_by_id(6), # アクセサリー
+    ShopCategory.find_by_id(5)  # バッグ
   ]
 )
 
 # 👕 商品作成
+puts "Creating items..."
 mens_item1 = Item.create!(
   shop: mens_shop,
   name: 'クラシックTシャツ',
   description: '上質な綿100%を使用したベーシックなTシャツ',
   price: 3900,
-  stock: 50
+  stock: 50,
+  status: :published,
+  item_categories: [ItemCategory.find_by_id(ItemCategory::TOPS)]
 )
 
 mens_item2 = Item.create!(
@@ -144,7 +151,9 @@ mens_item2 = Item.create!(
   name: 'スリムフィットジーンズ',
   description: '履き心地抜群のストレッチデニム',
   price: 8900,
-  stock: 30
+  stock: 30,
+  status: :published,
+  item_categories: [ItemCategory.find_by_id(ItemCategory::BOTTOMS)]
 )
 
 womens_item1 = Item.create!(
@@ -152,7 +161,9 @@ womens_item1 = Item.create!(
   name: 'フラワーワンピース',
   description: '春にぴったりの花柄ワンピース',
   price: 12900,
-  stock: 20
+  stock: 20,
+  status: :published,
+  item_categories: [ItemCategory.find_by_id(ItemCategory::DRESSES)]
 )
 
 womens_item2 = Item.create!(
@@ -160,7 +171,12 @@ womens_item2 = Item.create!(
   name: 'ニットカーディガン',
   description: '着回しやすい定番カーディガン',
   price: 7900,
-  stock: 25
+  stock: 25,
+  status: :published,
+  item_categories: [
+    ItemCategory.find_by_id(ItemCategory::TOPS),
+    ItemCategory.find_by_id(ItemCategory::OUTERWEAR)
+  ]
 )
 
 accessory_item = Item.create!(
@@ -168,7 +184,9 @@ accessory_item = Item.create!(
   name: 'シルバーネックレス',
   description: 'シンプルで上品なデザインのネックレス',
   price: 5900,
-  stock: 15
+  stock: 15,
+  status: :published,
+  item_categories: [ItemCategory.find_by_id(ItemCategory::ACCESSORIES)]
 )
 
 shoes_item = Item.create!(
@@ -176,32 +194,29 @@ shoes_item = Item.create!(
   name: 'レザースニーカー',
   description: '上質な本革を使用したスニーカー',
   price: 15900,
-  stock: 10
+  stock: 10,
+  status: :published,
+  item_categories: [ItemCategory.find_by_id(ItemCategory::SHOES)]
 )
 
 # 📢 お知らせ
+puts "Creating release info..."
 ReleaseInfo.create!(
   shop: mens_shop,
   title: '2024年春夏コレクション入荷',
   body: '待望の春夏コレクションが入荷しました。最新トレンドのアイテムを多数取り揃えております。',
-  status: 1
+  status: :published
 )
 
 ReleaseInfo.create!(
   shop: womens_shop,
   title: '送料無料キャンペーン実施中',
   body: '期間限定で1万円以上のお買い物が送料無料になります。この機会にぜひご利用ください。',
-  status: 1
-)
-
-ReleaseInfo.create!(
-  shop: beauty_shop,
-  title: '新商品入荷のお知らせ',
-  body: '人気のオーガニックスキンケアシリーズに、新商品が仲間入りしました。',
-  status: 1
+  status: :published
 )
 
 # 🛒 カート
+puts "Creating carts..."
 cart1 = Cart.create!(member: member1)
 CartItem.create!(cart: cart1, item: mens_item1, quantity: 1)
 CartItem.create!(cart: cart1, item: womens_item1, quantity: 1)
@@ -210,11 +225,13 @@ cart2 = Cart.create!(member: member2)
 CartItem.create!(cart: cart2, item: accessory_item, quantity: 2)
 
 # ❤️ お気に入り
+puts "Creating favorite items..."
 FavoriteItem.create!(member: member1, item: shoes_item)
 FavoriteItem.create!(member: member1, item: accessory_item)
 FavoriteItem.create!(member: member2, item: womens_item2)
 
 # 💰 購入履歴
+puts "Creating purchases..."
 purchase1 = Purchase.create!(
   member: member1,
   total_price: mens_item2.price + womens_item2.price
@@ -247,6 +264,7 @@ PurchaseItem.create!(
 )
 
 # ⭐️ レビュー
+puts "Creating reviews..."
 Review.create!(
   member: member1,
   item: mens_item1,
@@ -273,7 +291,8 @@ Review.create!(
 
 puts "\n=== ✅ Seed data created successfully! ===\n"
 puts "\n📊 Summary:"
-puts "- Categories: #{ShopCategory.count}"
+puts "- Shop Categories: #{ShopCategory.count}"
+puts "- Item Categories: #{ItemCategory.count}"
 puts "- Shops: #{Shop.count}"
 puts "- Items: #{Item.count}"
 puts "- Members: #{Member.count}"

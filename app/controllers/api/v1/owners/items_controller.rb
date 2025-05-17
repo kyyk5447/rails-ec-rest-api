@@ -15,7 +15,9 @@ class Api::V1::Owners::ItemsController < ApplicationController
     shop = current_owner.shops.find_by(id: item_params[:shop_id])
     return render json: { message: 'ショップが見つかりませんでした。' }, status: :not_found if shop.blank?
 
-    item = shop.items.build(item_params)
+    item = shop.items.build(item_params.except(:item_category_ids))
+    item.item_category_ids = item_params[:item_category_ids] if item_params[:item_category_ids].present?
+
     if item.save
       head :no_content
     else
@@ -24,8 +26,13 @@ class Api::V1::Owners::ItemsController < ApplicationController
   end
 
   def update
-    if @item.update(item_params)
-      head :no_content
+    if @item.update(item_params.except(:item_category_ids))
+      @item.item_category_ids = item_params[:item_category_ids] if item_params[:item_category_ids].present?
+      if @item.save
+        head :no_content
+      else
+        render json: { errors: @item.errors.full_messages }, status: :unprocessable_entity
+      end
     else
       render json: { errors: @item.errors.full_messages }, status: :unprocessable_entity
     end
@@ -51,10 +58,11 @@ class Api::V1::Owners::ItemsController < ApplicationController
   end
 
   def item_params
-    permitted = params.require(:item).permit(:shop_id, :image, :name, :price, :description, :stock, :status)
+    permitted = params.require(:item).permit(:shop_id, :image, :name, :price, :description, :stock, :status, item_category_ids: [])
     permitted[:price] = permitted[:price].to_i if permitted[:price].present?
     permitted[:stock] = permitted[:stock].to_i if permitted[:stock].present?
     permitted[:status] = permitted[:status].to_i if permitted[:status].present?
+    permitted[:item_category_ids] = permitted[:item_category_ids].map(&:to_i) if permitted[:item_category_ids].present?
 
     permitted
   end

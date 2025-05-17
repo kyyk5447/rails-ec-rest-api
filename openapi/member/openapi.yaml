@@ -1394,10 +1394,37 @@ components:
           format: date-time
           example: "2024-05-17T12:00:00.000Z"
 
+    ItemCategory:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          description: |
+            カテゴリID
+            - 1: トップス
+            - 2: ボトムス
+            - 3: アウター
+            - 4: ワンピース
+            - 5: スーツ・フォーマル
+            - 6: バッグ
+            - 7: シューズ
+            - 8: アクセサリー
+            - 9: 帽子
+            - 10: 小物
+          example: 1
+        name:
+          type: string
+          description: カテゴリの表示名
+          example: "トップス"
+
     Item:
       type: object
       required:
         - id
+        - itemCategories
         - imageUrl
         - name
         - description
@@ -1409,6 +1436,13 @@ components:
         id:
           type: integer
           example: 1
+        itemCategories:
+          type: array
+          items:
+            $ref: "#/components/schemas/ItemCategory"
+          example:
+            - id: 1
+              name: "トップス"
         imageUrl:
           type: string
           example: ""
