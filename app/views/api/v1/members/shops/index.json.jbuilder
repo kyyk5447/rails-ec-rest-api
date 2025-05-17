@@ -1,6 +1,10 @@
 json.shops do
   json.array!(@shops) do |shop|
     json.id shop.id
+    json.shopCategories shop.shop_categories do |category|
+      json.id category.id
+      json.name category.name
+    end
     json.imageUrl shop.image_url || ''
     json.name shop.name
     json.description shop.description

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_05_05_043059) do
+ActiveRecord::Schema[7.1].define(version: 2025_05_17_120001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -142,6 +142,22 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_05_043059) do
     t.index ["member_id"], name: "index_shipping_infos_on_member_id"
   end
 
+  create_table "shop_categories", id: :serial, force: :cascade do |t|
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "shop_category_assignments", force: :cascade do |t|
+    t.bigint "shop_id", null: false
+    t.bigint "shop_category_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["shop_category_id"], name: "index_shop_category_assignments_on_shop_category_id"
+    t.index ["shop_id", "shop_category_id"], name: "idx_on_shop_id_shop_category_id_d39c66ffd7", unique: true
+    t.index ["shop_id"], name: "index_shop_category_assignments_on_shop_id"
+  end
+
   create_table "shops", force: :cascade do |t|
     t.string "name", limit: 30, default: "", null: false
     t.text "description", default: "", null: false
@@ -164,5 +180,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_05_043059) do
   add_foreign_key "release_infos", "shops"
   add_foreign_key "reviews", "items"
   add_foreign_key "reviews", "members"
+  add_foreign_key "shop_category_assignments", "shop_categories"
+  add_foreign_key "shop_category_assignments", "shops"
   add_foreign_key "shops", "owners"
 end

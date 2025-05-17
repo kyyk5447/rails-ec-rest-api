@@ -6,7 +6,9 @@ class Api::V1::Owners::ShopsController < ApplicationController
 
   def index
     page = params[:page].to_i.positive? ? params[:page].to_i : 1
-    @shops = current_owner.shops.page(page).per(PER_PAGE)
+    @shops = current_owner.shops
+    @shops = @shops.where(shop_category_id: params[:shop_category_id]) if params[:shop_category_id].present?
+    @shops = @shops.page(page).per(PER_PAGE)
   end
 
   def show; end
@@ -44,6 +46,6 @@ class Api::V1::Owners::ShopsController < ApplicationController
   end
 
   def shop_params
-    params.require(:shop).permit(:image, :name, :description)
+    params.require(:shop).permit(:image, :name, :description, shop_category_ids: [])
   end
 end

@@ -1,7 +1,27 @@
 ja:
   activerecord:
+    models:
+      shop: ショップ
+      shop_category: ショップカテゴリ
+    attributes:
+      shop:
+        name: 店舗名
+        description: 説明
+        owner: オーナー
+        shop_categories: カテゴリ
+      shop_category:
+        name: カテゴリ名
     errors:
+      models:
+        shop:
+          attributes:
+            base:
+              must_have_category: ショップは少なくとも1つのカテゴリに属している必要があります
       messages:
+        record_invalid: "バリデーションに失敗しました: %{errors}"
+        restrict_dependent_destroy:
+          has_one: "%{record}が存在しているので削除できません"
+          has_many: "%{record}が存在しているので削除できません"
         blank: "を入力してください。"
         too_short: "%{attribute}は%{count}文字以上で入力してください。"
         too_long: "%{attribute}は%{count}文字以内で入力してください。"

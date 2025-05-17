@@ -341,14 +341,23 @@ paths:
               type: object
               required:
                 - name
+                - description
+                - shopCategoryIds
               properties:
                 image:
                   type: string
                   format: binary
                 name:
                   type: string
+                  example: "ファッションショップ1"
                 description:
                   type: string
+                  example: "最新のトレンドアイテムを取り扱うショップです。"
+                shopCategoryIds:
+                  type: array
+                  items:
+                    type: integer
+                  example: [1, 4]
       responses:
         "204":
           description: 作成成功
@@ -436,14 +445,23 @@ paths:
               type: object
               required:
                 - name
+                - description
+                - shopCategoryIds
               properties:
                 image:
                   type: string
                   format: binary
                 name:
                   type: string
+                  example: "ファッションショップ1"
                 description:
                   type: string
+                  example: "最新のトレンドアイテムを取り扱うショップです。"
+                shopCategoryIds:
+                  type: array
+                  items:
+                    type: integer
+                  example: [1, 4]
       responses:
         "204":
           description: 更新成功
@@ -1167,10 +1185,25 @@ components:
           type: string
           example: "test1@example.com"
 
+    ShopCategory:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "メンズファッション"
+
     Shop:
       type: object
       required:
         - id
+        - shopCategories
+        - imageUrl
         - name
         - description
         - createdAt
@@ -1178,19 +1211,67 @@ components:
         id:
           type: integer
           example: 1
+        shopCategories:
+          type: array
+          items:
+            $ref: "#/components/schemas/ShopCategory"
         imageUrl:
           type: string
-          example: "https://example.com/images/shops/1.jpg"
+          example: "http://example.com/images/shop1.jpg"
+          description: "画像URLがない場合は空文字列を返します"
         name:
           type: string
-          example: "モードスタイル"
+          example: "ファッションショップ1"
         description:
           type: string
-          example: "最新トレンドを取り入れたアパレルショップ"
+          example: "最新のトレンドアイテムを取り扱うショップです。"
         createdAt:
           type: string
           format: date-time
-          example: "2024-04-19T10:00:00.000Z"
+          example: "2024-05-17T12:00:00.000Z"
+
+    ShopRequest:
+      type: object
+      required:
+        - shop
+      properties:
+        shop:
+          type: object
+          required:
+            - name
+            - description
+            - shopCategoryIds
+          properties:
+            name:
+              type: string
+              example: "ファッションショップ1"
+            description:
+              type: string
+              example: "最新のトレンドアイテムを取り扱うショップです。"
+            image:
+              type: string
+              format: binary
+            shopCategoryIds:
+              type: array
+              description: |
+                ショップが所属するカテゴリのID配列。
+                - 1: メンズファッション
+                - 2: レディースファッション
+                - 3: キッズファッション
+                - 4: シューズ
+                - 5: バッグ
+                - 6: アクセサリー
+                - 7: スポーツ
+                - 8: アウトドア
+                - 9: コスメ・美容
+                - 10: ヘルス・ボディケア
+                - 11: フード・グルメ
+                - 12: インテリア・雑貨
+                ※ 最低1つのカテゴリを指定する必要があります。
+                ※ 関連性の高いカテゴリを組み合わせることを推奨します。
+              items:
+                type: integer
+              example: [1, 4]
 
     Item:
       type: object

@@ -1334,97 +1334,65 @@ components:
           type: string
           example: "member@example.com"
 
+    ShopCategory:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          description: |
+            カテゴリID
+            - 1: メンズファッション
+            - 2: レディースファッション
+            - 3: キッズファッション
+            - 4: シューズ
+            - 5: バッグ
+            - 6: アクセサリー
+            - 7: スポーツ
+            - 8: アウトドア
+            - 9: コスメ・美容
+            - 10: ヘルス・ボディケア
+            - 11: フード・グルメ
+            - 12: インテリア・雑貨
+          example: 1
+        name:
+          type: string
+          description: カテゴリの表示名
+          example: "メンズファッション"
+
     Shop:
       type: object
       required:
         - id
+        - shopCategories
         - imageUrl
         - name
         - description
         - createdAt
-        - items
       properties:
         id:
           type: integer
           example: 1
+        shopCategories:
+          type: array
+          items:
+            $ref: "#/components/schemas/ShopCategory"
         imageUrl:
           type: string
-          example: "https://example.com/images/shops/1.jpg"
+          example: "http://example.com/images/shop1.jpg"
+          description: "画像URLがない場合は空文字列を返します"
         name:
           type: string
-          example: "モードスタイル"
+          example: "ファッションショップ1"
         description:
           type: string
-          example: "最新トレンドを取り入れたアパレルショップ"
+          example: "最新のトレンドアイテムを取り扱うショップです。"
         createdAt:
           type: string
           format: date-time
-          example: "2025-05-05T17:51:29.957+09:00"
-        items:
-          type: array
-          items:
-            $ref: "#/components/schemas/Item"
-          example:
-            - id: 1
-              name: "ベーシックTシャツ"
-              description: "着回し抜群のコットンTシャツ"
-              price: 1980
-              stock: 100
-              createdAt: "2025-05-05T17:51:30.235+09:00"
-            - id: 2
-              name: "オーバーサイズパーカー"
-              description: "ゆったりシルエットでこなれ感UP"
-              price: 4980
-              stock: 50
-              createdAt: "2025-05-05T17:51:30.241+09:00"
-            - id: 3
-              name: "デニムパンツ"
-              description: "ストレートカットの定番デニム"
-              price: 6980
-              stock: 60
-              createdAt: "2025-05-05T17:51:30.252+09:00"
-            - id: 4
-              name: "チェック柄シャツ"
-              description: "秋冬にぴったりなチェック柄"
-              price: 3980
-              stock: 40
-              createdAt: "2025-05-05T17:51:30.255+09:00"
-            - id: 5
-              name: "マキシワンピース"
-              description: "エレガントなロング丈ワンピース"
-              price: 7980
-              stock: 30
-              createdAt: "2025-05-05T17:51:30.258+09:00"
-            - id: 6
-              name: "レザージャケット"
-              description: "スタイリッシュなライダースジャケット"
-              price: 12980
-              stock: 20
-              createdAt: "2025-05-05T17:51:30.262+09:00"
-            - id: 7
-              name: "ニットセーター"
-              description: "暖かくて柔らかいウールニット"
-              price: 5980
-              stock: 35
-              createdAt: "2025-05-05T17:51:30.265+09:00"
-            - id: 8
-              name: "プリーツスカート"
-              description: "上品な揺れ感が魅力のスカート"
-              price: 4580
-              stock: 45
-              createdAt: "2025-05-05T17:51:30.268+09:00"
-            - id: 9
-              name: "テーラードジャケット"
-              description: "ビジネスにもカジュアルにも使える一枚"
-              price: 9980
-              stock: 25
-              createdAt: "2025-05-05T17:51:30.271+09:00"
-            - id: 10
-              name: "サマーハット"
-              description: "夏の紫外線対策にぴったりな帽子"
-              price: 2480
-              stock: 80
-              createdAt: "2025-05-05T17:51:30.275+09:00"
+          example: "2024-05-17T12:00:00.000Z"
 
     Item:
       type: object

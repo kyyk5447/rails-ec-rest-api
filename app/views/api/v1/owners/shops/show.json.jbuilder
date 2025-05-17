@@ -1,5 +1,11 @@
 json.id @shop.id
-json.imageUrl @shop.image_url
+
+json.shopCategories @shop.shop_categories do |category|
+  json.id category.id
+  json.name category.name
+end
+
+json.imageUrl @shop.image_url || ''
 json.name @shop.name
 json.description @shop.description
 json.createdAt @shop.created_at
