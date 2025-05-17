@@ -1,0 +1,1677 @@
+openapi: 3.0.0
+info:
+  title: EC Site Member API
+  version: 1.0.0
+  description: ECサイトの一般会員向けAPI
+
+servers:
+  - url: /api/v1/members
+
+tags:
+  - name: Authentication
+    description: 認証関連
+  - name: Member
+    description: 会員情報管理
+  - name: ShippingInfo
+    description: 配送先
+  - name: Shop
+    description: ショップ閲覧
+  - name: Item
+    description: 商品閲覧
+  - name: CartItem
+    description: カート商品
+  - name: Purchase
+    description: 購入
+  - name: Review
+    description: レビュー
+  - name: ReleaseInfo
+    description: お知らせ閲覧
+  - name: FavoriteItem
+    description: お気に入り商品
+
+paths:
+  /csrf:
+    get:
+      tags:
+        - Authentication
+      summary: CSRFトークンを取得
+      responses:
+        "200":
+          description: 取得成功
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - csrfToken
+                properties:
+                  csrfToken:
+                    type: string
+                    example: "3Hlq7LpQ2-gGlq1KMKowhRdiNTvPLJ2ehrBsfn_8KeWF-uqhJWPOyuBCYtz4JE1WdQxxVOZ1yD7OX8wACYOU5g"
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+
+  /sign_up:
+    post:
+      tags:
+        - Authentication
+      summary: 会員登録
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - member
+              properties:
+                member:
+                  type: object
+                  required:
+                    - firstName
+                    - firstNameKana
+                    - lastName
+                    - lastNameKana
+                    - tel
+                    - gender
+                    - birthday
+                    - email
+                    - password
+                    - passwordConfirmation
+                  properties:
+                    firstName:
+                      type: string
+                      example: "山田"
+                    firstNameKana:
+                      type: string
+                      example: "ヤマダ"
+                    lastName:
+                      type: string
+                      example: "太郎"
+                    lastNameKana:
+                      type: string
+                      example: "タロウ"
+                    tel:
+                      type: string
+                      example: "07000000000"
+                    gender:
+                      type: integer
+                      example: 1
+                    birthday:
+                      type: string
+                      format: date
+                      example: "1990-12-12"
+                    email:
+                      type: string
+                      example: "test1@example.com"
+                    password:
+                      type: string
+                      example: "Test1111"
+                    passwordConfirmation:
+                      type: string
+                      example: "Test1111"
+      responses:
+        "204":
+          description: 登録成功
+        "422":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /sign_in:
+    post:
+      tags:
+        - Authentication
+      summary: ログイン
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - member
+              properties:
+                member:
+                  type: object
+                  required:
+                    - email
+                    - password
+                  properties:
+                    email:
+                      type: string
+                      example: "test1@example.com"
+                    password:
+                      type: string
+                      example: "Test1111"
+      responses:
+        "200":
+          description: 認証成功
+        "401":
+          description: 認証失敗
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - errors
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: ["メールアドレスまたはパスワードが違います。"]
+
+  /sign_out:
+    delete:
+      tags:
+        - Authentication
+      summary: ログアウト
+      security:
+        - cookieAuth: []
+        - csrfToken: []
+      responses:
+        "200":
+          description: ログアウト成功
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+              examples:
+                success:
+                  summary: ログアウト成功時
+                  value:
+                    message: "ログアウトに成功しました。"
+                already:
+                  summary: 既にログアウト済みの場合
+                  value:
+                    message: "既にログアウトは完了しています。"
+
+  /identity:
+    get:
+      tags:
+        - Member
+      summary: 会員情報取得
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+
+  /profile:
+    patch:
+      tags:
+        - Member
+      summary: 会員情報更新
+      security:
+        - cookieAuth: []
+        - csrfToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - member
+              properties:
+                member:
+                  type: object
+                  required:
+                    - firstName
+                    - firstNameKana
+                    - lastName
+                    - lastNameKana
+                    - tel
+                    - gender
+                    - birthday
+                    - email
+                  properties:
+                    firstName:
+                      type: string
+                      example: "西田"
+                    firstNameKana:
+                      type: string
+                      example: "ニシダ"
+                    lastName:
+                      type: string
+                      example: "太郎"
+                    lastNameKana:
+                      type: string
+                      example: "タロウ"
+                    tel:
+                      type: string
+                      example: "070000000000"
+                    gender:
+                      type: integer
+                      example: 1
+                    birthday:
+                      type: string
+                      format: date
+                      example: "1990-12-12"
+                    email:
+                      type: string
+                      example: "test1@example.com"
+                    password:
+                      type: string
+                      example: "Test1111"
+                    passwordConfirmation:
+                      type: string
+                      example: "Test1111"
+      responses:
+        "204":
+          description: 更新成功
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+        "422":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /shipping_info:
+    get:
+      tags:
+        - ShippingInfo
+      summary: 配送先一覧取得
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ShippingInfo"
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+
+    post:
+      tags:
+        - ShippingInfo
+      summary: 配送先作成
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - shippingInfo
+              properties:
+                shippingInfo:
+                  type: object
+                  required:
+                    - postalCode
+                    - country
+                    - prefecture
+                    - city
+                    - address
+                  properties:
+                    postalCode:
+                      type: string
+                      example: "1110025"
+                    country:
+                      type: string
+                      example: "日本"
+                    prefecture:
+                      type: string
+                      example: "東京都"
+                    city:
+                      type: string
+                      example: "右京区"
+                    address:
+                      type: string
+                      example: "峰"
+                    building:
+                      type: string
+                      example: "ビル101号"
+      responses:
+        "204":
+          description: 作成成功
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+        "422":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /shipping_info/{id}:
+    get:
+      tags:
+        - ShippingInfo
+      summary: 配送先詳細取得
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShippingInfo"
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+
+    patch:
+      tags:
+        - ShippingInfo
+      summary: 配送先更新
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - shippingInfo
+              properties:
+                shippingInfo:
+                  type: object
+                  required:
+                    - postalCode
+                    - country
+                    - prefecture
+                    - city
+                    - address
+                  properties:
+                    postalCode:
+                      type: string
+                      example: "1110025"
+                    country:
+                      type: string
+                      example: "日本"
+                    prefecture:
+                      type: string
+                      example: "東京都"
+                    city:
+                      type: string
+                      example: "右京区"
+                    address:
+                      type: string
+                      example: "峰"
+                    building:
+                      type: string
+                      example: "ビル101号"
+      responses:
+        "204":
+          description: 更新成功
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+        "422":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    delete:
+      tags:
+        - ShippingInfo
+      summary: 配送先削除
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: 削除成功
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+
+  /shops:
+    get:
+      tags:
+        - Shop
+      summary: ショップ一覧取得
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    required:
+                      - shops
+                      - totalPages
+                      - totalCount
+                      - currentPage
+                      - nextPage
+                      - hasNext
+                    properties:
+                      shops:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Shop"
+                  - $ref: "#/components/schemas/PaginatedResponse"
+
+  /shops/{id}:
+    get:
+      tags:
+        - Shop
+      summary: ショップ詳細取得
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Shop"
+
+  /items:
+    get:
+      tags:
+        - Item
+      summary: 商品一覧取得
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                  - totalPages
+                  - totalCount
+                  - currentPage
+                  - nextPage
+                  - hasNext
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Item"
+                    example:
+                      - id: 10
+                        imageUrl: ""
+                        name: "サマーハット"
+                        description: "夏の紫外線対策にぴったりな帽子"
+                        price: 2480
+                        stock: 80
+                        createdAt: "2025-05-05T17:51:30.275+09:00"
+                      - id: 9
+                        imageUrl: ""
+                        name: "テーラードジャケット"
+                        description: "ビジネスにもカジュアルにも使える一枚"
+                        price: 9980
+                        stock: 25
+                        createdAt: "2025-05-05T17:51:30.271+09:00"
+                      - id: 8
+                        imageUrl: ""
+                        name: "プリーツスカート"
+                        description: "上品な揺れ感が魅力のスカート"
+                        price: 4580
+                        stock: 45
+                        createdAt: "2025-05-05T17:51:30.268+09:00"
+                      - id: 7
+                        imageUrl: ""
+                        name: "ニットセーター"
+                        description: "暖かくて柔らかいウールニット"
+                        price: 5980
+                        stock: 35
+                        createdAt: "2025-05-05T17:51:30.265+09:00"
+                      - id: 6
+                        imageUrl: ""
+                        name: "レザージャケット"
+                        description: "スタイリッシュなライダースジャケット"
+                        price: 12980
+                        stock: 20
+                        createdAt: "2025-05-05T17:51:30.262+09:00"
+                      - id: 5
+                        imageUrl: ""
+                        name: "マキシワンピース"
+                        description: "エレガントなロング丈ワンピース"
+                        price: 7980
+                        stock: 30
+                        createdAt: "2025-05-05T17:51:30.258+09:00"
+                      - id: 4
+                        imageUrl: ""
+                        name: "チェック柄シャツ"
+                        description: "秋冬にぴったりなチェック柄"
+                        price: 3980
+                        stock: 40
+                        createdAt: "2025-05-05T17:51:30.255+09:00"
+                      - id: 3
+                        imageUrl: ""
+                        name: "デニムパンツ"
+                        description: "ストレートカットの定番デニム"
+                        price: 6980
+                        stock: 60
+                        createdAt: "2025-05-05T17:51:30.252+09:00"
+                      - id: 2
+                        imageUrl: ""
+                        name: "オーバーサイズパーカー"
+                        description: "ゆったりシルエットでこなれ感UP"
+                        price: 4980
+                        stock: 50
+                        createdAt: "2025-05-05T17:51:30.241+09:00"
+                      - id: 1
+                        imageUrl: ""
+                        name: "ベーシックTシャツ"
+                        description: "着回し抜群のコットンTシャツ"
+                        price: 1980
+                        stock: 100
+                        createdAt: "2025-05-05T17:51:30.235+09:00"
+                  totalPages:
+                    type: integer
+                    example: 1
+                  totalCount:
+                    type: integer
+                    example: 10
+                  currentPage:
+                    type: integer
+                    example: 1
+                  nextPage:
+                    type: integer
+                    nullable: true
+                    example: null
+                  hasNext:
+                    type: boolean
+                    example: false
+
+  /items/{id}:
+    get:
+      tags:
+        - Item
+      summary: 商品詳細取得
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Item"
+
+  /reviews:
+    get:
+      tags:
+        - Review
+      summary: レビュー一覧取得
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - reviews
+                  - totalPages
+                  - totalCount
+                  - currentPage
+                  - nextPage
+                  - hasNext
+                properties:
+                  reviews:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Review"
+                  totalPages:
+                    type: integer
+                  totalCount:
+                    type: integer
+                  currentPage:
+                    type: integer
+                  nextPage:
+                    type: integer
+                    nullable: true
+                  hasNext:
+                    type: boolean
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+
+    post:
+      tags:
+        - Review
+      summary: レビュー投稿
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - review
+              properties:
+                review:
+                  type: object
+                  required:
+                    - itemId
+                    - title
+                    - comment
+                    - rating
+                  properties:
+                    itemId:
+                      type: integer
+                      example: 1
+                    title:
+                      type: string
+                      example: "タイトル"
+                    comment:
+                      type: string
+                      example: "コメント"
+                    rating:
+                      type: integer
+                      example: 3
+      responses:
+        "204":
+          description: 作成成功
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+        "422":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /reviews/{id}:
+    delete:
+      tags:
+        - Review
+      summary: レビュー削除
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: 削除成功
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+
+  /release_info:
+    get:
+      tags:
+        - ReleaseInfo
+      summary: お知らせ一覧取得
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ReleaseInfo"
+                required:
+                  - releaseInfo
+
+  /release_info/{id}:
+    get:
+      tags:
+        - ReleaseInfo
+      summary: お知らせ詳細取得
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReleaseInfo"
+
+  /favorite_items:
+    get:
+      tags:
+        - FavoriteItem
+      summary: お気に入り商品一覧取得
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - favoriteItems
+                  - totalPages
+                  - totalCount
+                  - currentPage
+                  - nextPage
+                  - hasNext
+                properties:
+                  favoriteItems:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Item"
+                    example:
+                      - id: 3
+                        imageUrl: ""
+                        name: "デニムパンツ"
+                        description: "ストレートカットの定番デニム"
+                        price: 6980
+                        stock: 60
+                        createdAt: "2025-05-05T17:51:30.252+09:00"
+                      - id: 1
+                        imageUrl: ""
+                        name: "ベーシックTシャツ"
+                        description: "着回し抜群のコットンTシャツ"
+                        price: 1980
+                        stock: 99
+                        createdAt: "2025-05-05T17:51:30.235+09:00"
+                  totalPages:
+                    type: integer
+                    example: 1
+                  totalCount:
+                    type: integer
+                    example: 2
+                  currentPage:
+                    type: integer
+                    example: 1
+                  nextPage:
+                    type: integer
+                    nullable: true
+                    example: null
+                  hasNext:
+                    type: boolean
+                    example: false
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+
+  /favorite_items/{id}:
+    put:
+      tags:
+        - FavoriteItem
+      summary: お気に入り商品更新
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: 更新成功
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+
+  /cart_items:
+    get:
+      tags:
+        - CartItem
+      summary: カート商品一覧取得
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CartItem"
+                example:
+                  - id: 1
+                    imageUrl: ""
+                    name: "ベーシックTシャツ"
+                    description: "着回し抜群のコットンTシャツ"
+                    price: 1980
+                    quantity: 1
+                    stock: 100
+                    shopId: 1
+                  - id: 2
+                    imageUrl: ""
+                    name: "オーバーサイズパーカー"
+                    description: "ゆったりシルエットでこなれ感UP"
+                    price: 4980
+                    quantity: 3
+                    stock: 50
+                    shopId: 1
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+
+    post:
+      tags:
+        - CartItem
+      summary: カート商品追加
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - cart
+              properties:
+                cart:
+                  type: object
+                  required:
+                    - itemId
+                    - quantity
+                  properties:
+                    itemId:
+                      type: integer
+                      example: 41
+                    quantity:
+                      type: integer
+                      example: 1
+      responses:
+        "204":
+          description: 追加成功
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+        "422":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /cart_items/{id}:
+    delete:
+      tags:
+        - CartItem
+      summary: カート商品削除
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: 削除成功
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+
+  /purchases:
+    get:
+      tags:
+        - Purchase
+      summary: 購入履歴一覧取得
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - purchases
+                  - totalPages
+                  - totalCount
+                  - currentPage
+                  - nextPage
+                  - hasNext
+                properties:
+                  purchases:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Purchase"
+                    example:
+                      - id: 2
+                        totalPrice: 16920
+                        createdAt: "2025-05-17T17:42:22.760+09:00"
+                        purchaseItems:
+                          - id: 3
+                            quantity: 1
+                            subtotal: 1980
+                            item:
+                              id: 1
+                              imageUrl: ""
+                              name: "ベーシックTシャツ"
+                              description: "着回し抜群のコットンTシャツ"
+                              price: 1980
+                              stock: 99
+                              status: 1
+                              shopId: 1
+                          - id: 4
+                            quantity: 3
+                            subtotal: 14940
+                            item:
+                              id: 2
+                              imageUrl: ""
+                              name: "オーバーサイズパーカー"
+                              description: "ゆったりシルエットでこなれ感UP"
+                              price: 4980
+                              stock: 47
+                              status: 1
+                              shopId: 1
+                  totalPages:
+                    type: integer
+                    example: 1
+                  totalCount:
+                    type: integer
+                    example: 1
+                  currentPage:
+                    type: integer
+                    example: 1
+                  nextPage:
+                    type: integer
+                    nullable: true
+                    example: null
+                  hasNext:
+                    type: boolean
+                    example: false
+
+    post:
+      tags:
+        - Purchase
+      summary: 商品購入
+      security:
+        - cookieAuth: []
+      responses:
+        "201":
+          description: 購入成功
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "購入が完了しました。"
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+
+  /purchases/{id}:
+    delete:
+      tags:
+        - Purchase
+      summary: 購入をキャンセル
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: 削除成功
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: "ログインもしくはアカウント登録してください"
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: _session_id
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
+            example: "バリデーションエラーが発生しました"
+
+    Member:
+      type: object
+      required:
+        - firstName
+        - firstNameKana
+        - lastName
+        - lastNameKana
+        - tel
+        - gender
+        - birthday
+        - email
+      properties:
+        firstName:
+          type: string
+          example: "花子"
+        firstNameKana:
+          type: string
+          example: "ハナコ"
+        lastName:
+          type: string
+          example: "佐藤"
+        lastNameKana:
+          type: string
+          example: "サトウ"
+        tel:
+          type: string
+          example: "07000000000"
+        gender:
+          type: integer
+          example: 1
+        birthday:
+          type: string
+          format: date
+          example: "1990-01-01"
+        email:
+          type: string
+          example: "member@example.com"
+
+    Shop:
+      type: object
+      required:
+        - id
+        - imageUrl
+        - name
+        - description
+        - createdAt
+        - items
+      properties:
+        id:
+          type: integer
+          example: 1
+        imageUrl:
+          type: string
+          example: "https://example.com/images/shops/1.jpg"
+        name:
+          type: string
+          example: "モードスタイル"
+        description:
+          type: string
+          example: "最新トレンドを取り入れたアパレルショップ"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2025-05-05T17:51:29.957+09:00"
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Item"
+          example:
+            - id: 1
+              name: "ベーシックTシャツ"
+              description: "着回し抜群のコットンTシャツ"
+              price: 1980
+              stock: 100
+              createdAt: "2025-05-05T17:51:30.235+09:00"
+            - id: 2
+              name: "オーバーサイズパーカー"
+              description: "ゆったりシルエットでこなれ感UP"
+              price: 4980
+              stock: 50
+              createdAt: "2025-05-05T17:51:30.241+09:00"
+            - id: 3
+              name: "デニムパンツ"
+              description: "ストレートカットの定番デニム"
+              price: 6980
+              stock: 60
+              createdAt: "2025-05-05T17:51:30.252+09:00"
+            - id: 4
+              name: "チェック柄シャツ"
+              description: "秋冬にぴったりなチェック柄"
+              price: 3980
+              stock: 40
+              createdAt: "2025-05-05T17:51:30.255+09:00"
+            - id: 5
+              name: "マキシワンピース"
+              description: "エレガントなロング丈ワンピース"
+              price: 7980
+              stock: 30
+              createdAt: "2025-05-05T17:51:30.258+09:00"
+            - id: 6
+              name: "レザージャケット"
+              description: "スタイリッシュなライダースジャケット"
+              price: 12980
+              stock: 20
+              createdAt: "2025-05-05T17:51:30.262+09:00"
+            - id: 7
+              name: "ニットセーター"
+              description: "暖かくて柔らかいウールニット"
+              price: 5980
+              stock: 35
+              createdAt: "2025-05-05T17:51:30.265+09:00"
+            - id: 8
+              name: "プリーツスカート"
+              description: "上品な揺れ感が魅力のスカート"
+              price: 4580
+              stock: 45
+              createdAt: "2025-05-05T17:51:30.268+09:00"
+            - id: 9
+              name: "テーラードジャケット"
+              description: "ビジネスにもカジュアルにも使える一枚"
+              price: 9980
+              stock: 25
+              createdAt: "2025-05-05T17:51:30.271+09:00"
+            - id: 10
+              name: "サマーハット"
+              description: "夏の紫外線対策にぴったりな帽子"
+              price: 2480
+              stock: 80
+              createdAt: "2025-05-05T17:51:30.275+09:00"
+
+    Item:
+      type: object
+      required:
+        - id
+        - imageUrl
+        - name
+        - description
+        - price
+        - stock
+        - createdAt
+        - reviews
+      properties:
+        id:
+          type: integer
+          example: 1
+        imageUrl:
+          type: string
+          example: ""
+        name:
+          type: string
+          example: "ベーシックTシャツ"
+        description:
+          type: string
+          example: "着回し抜群のコットンTシャツ"
+        price:
+          type: integer
+          example: 1980
+        stock:
+          type: integer
+          example: 100
+        createdAt:
+          type: string
+          format: date-time
+          example: "2025-05-05T17:51:30.235+09:00"
+        reviews:
+          type: array
+          items:
+            $ref: "#/components/schemas/Review"
+          example:
+            - id: 1
+              title: "気に入りました！"
+              comment: "シンプルで着心地も良く、何枚も欲しくなります。"
+              rating: 5
+
+    Review:
+      type: object
+      required:
+        - id
+        - title
+        - comment
+        - rating
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "気に入りました！"
+        comment:
+          type: string
+          example: "シンプルで着心地も良く、何枚も欲しくなります。"
+        rating:
+          type: integer
+          example: 5
+
+    ShippingInfo:
+      type: object
+      required:
+        - id
+        - postalCode
+        - country
+        - prefecture
+        - city
+        - address
+      properties:
+        id:
+          type: integer
+          example: 1
+        postalCode:
+          type: string
+          example: "1110025"
+        country:
+          type: string
+          example: "日本"
+        prefecture:
+          type: string
+          example: "東京都"
+        city:
+          type: string
+          example: "右京区"
+        address:
+          type: string
+          example: "峰"
+        building:
+          type: string
+          example: "ビル101号"
+
+    ReleaseInfo:
+      type: object
+      required:
+        - id
+        - title
+        - body
+        - createdAt
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "新商品入荷のお知らせ"
+        body:
+          type: string
+          example: "春の新作アイテムが入荷しました。ぜひチェックしてください。"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-04-19T10:00:00.000Z"
+
+    CartItem:
+      type: object
+      required:
+        - id
+        - imageUrl
+        - name
+        - description
+        - price
+        - quantity
+        - stock
+        - shopId
+      properties:
+        id:
+          type: integer
+          example: 1
+        imageUrl:
+          type: string
+          example: ""
+        name:
+          type: string
+          example: "ベーシックTシャツ"
+        description:
+          type: string
+          example: "着回し抜群のコットンTシャツ"
+        price:
+          type: integer
+          example: 1980
+        quantity:
+          type: integer
+          example: 1
+        stock:
+          type: integer
+          example: 100
+        shopId:
+          type: integer
+          example: 1
+
+    Purchase:
+      type: object
+      required:
+        - id
+        - totalPrice
+        - createdAt
+        - purchaseItems
+      properties:
+        id:
+          type: integer
+          example: 2
+        totalPrice:
+          type: integer
+          example: 16920
+        createdAt:
+          type: string
+          format: date-time
+          example: "2025-05-17T17:42:22.760+09:00"
+        purchaseItems:
+          type: array
+          items:
+            type: object
+            required:
+              - id
+              - quantity
+              - subtotal
+              - item
+            properties:
+              id:
+                type: integer
+                example: 3
+              quantity:
+                type: integer
+                example: 1
+              subtotal:
+                type: integer
+                example: 1980
+              item:
+                type: object
+                required:
+                  - id
+                  - imageUrl
+                  - name
+                  - description
+                  - price
+                  - stock
+                  - status
+                  - shopId
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  imageUrl:
+                    type: string
+                    example: ""
+                  name:
+                    type: string
+                    example: "ベーシックTシャツ"
+                  description:
+                    type: string
+                    example: "着回し抜群のコットンTシャツ"
+                  price:
+                    type: integer
+                    example: 1980
+                  stock:
+                    type: integer
+                    example: 99
+                  status:
+                    type: integer
+                    example: 1
+                  shopId:
+                    type: integer
+                    example: 1
+
+    PaginatedResponse:
+      type: object
+      properties:
+        totalPages:
+          type: integer
+          example: 10
+        totalCount:
+          type: integer
+          example: 100
+        currentPage:
+          type: integer
+          example: 1
+        nextPage:
+          type: integer
+          example: 2
+          nullable: true
+        hasNext:
+          type: boolean
+          example: true
