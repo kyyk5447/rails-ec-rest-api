@@ -18,7 +18,7 @@ class Api::V1::Members::FavoriteItemsController < ApplicationController
       head :no_content
     else
       favorite_item.save
-      head :created
+      head :no_content
     end
   end
 end
