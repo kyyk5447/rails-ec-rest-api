@@ -355,9 +355,23 @@ paths:
                   example: "最新のトレンドアイテムを取り扱うショップです。"
                 shopCategoryIds:
                   type: array
+                  description: |
+                    ショップが所属するカテゴリのID配列。
+                    - 1: メンズファッション
+                    - 2: レディースファッション
+                    - 3: キッズファッション
+                    - 4: シューズ
+                    - 5: バッグ
+                    - 6: アクセサリー
+                    - 7: スポーツ
+                    - 8: アウトドア
+                    - 9: コスメ・美容
+                    - 10: ヘルス・ボディケア
+                    - 11: フード・グルメ
+                    - 12: インテリア・雑貨
                   items:
                     type: integer
-                  example: [1, 4]
+                  example: [1, 2]
       responses:
         "204":
           description: 作成成功
@@ -1240,7 +1254,7 @@ components:
       type: object
       required:
         - id
-        - shopCategories
+        - categories
         - imageUrl
         - name
         - description
@@ -1249,7 +1263,7 @@ components:
         id:
           type: integer
           example: 1
-        shopCategories:
+        categories:
           type: array
           items:
             $ref: "#/components/schemas/ShopCategory"
@@ -1305,11 +1319,9 @@ components:
                 - 10: ヘルス・ボディケア
                 - 11: フード・グルメ
                 - 12: インテリア・雑貨
-                ※ 最低1つのカテゴリを指定する必要があります。
-                ※ 関連性の高いカテゴリを組み合わせることを推奨します。
               items:
                 type: integer
-              example: [1, 4]
+              example: [1, 2]
 
     ItemCategory:
       type: object
@@ -1341,7 +1353,7 @@ components:
       type: object
       required:
         - id
-        - itemCategories
+        - categories
         - name
         - price
         - stock
@@ -1352,7 +1364,7 @@ components:
         id:
           type: integer
           example: 1
-        itemCategories:
+        categories:
           type: array
           items:
             $ref: "#/components/schemas/ItemCategory"

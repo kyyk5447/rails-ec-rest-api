@@ -1,7 +1,7 @@
 json.favoriteItems do
   json.array! @favorite_items do |item|
     json.id item.id
-    json.itemCategories item.item_categories do |category|
+    json.categories item.item_categories do |category|
       json.id category.id
       json.name category.name
     end
