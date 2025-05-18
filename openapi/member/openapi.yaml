@@ -228,7 +228,7 @@ paths:
                     example: "ログインもしくはアカウント登録してください"
 
   /profile:
-    patch:
+    put:
       tags:
         - Member
       summary: 会員情報更新
@@ -435,7 +435,7 @@ paths:
                     type: string
                     example: "ログインもしくはアカウント登録してください"
 
-    patch:
+    put:
       tags:
         - ShippingInfo
       summary: 配送先更新
@@ -1424,7 +1424,7 @@ components:
       type: object
       required:
         - id
-        - itemCategories
+        - categories
         - imageUrl
         - name
         - description
@@ -1436,7 +1436,7 @@ components:
         id:
           type: integer
           example: 1
-        itemCategories:
+        categories:
           type: array
           items:
             $ref: "#/components/schemas/ItemCategory"

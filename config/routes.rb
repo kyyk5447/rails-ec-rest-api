@@ -26,7 +26,7 @@ Rails.application.routes.draw do
         # 認証
         post '/sign_up', to: 'registers#create'
         get '/identity', to: 'members#identity'
-        patch '/profile', to: 'members#update'
+        put '/profile', to: 'members#update'
         # ショップ
         get '/shops', to: 'shops#index'
         get '/shops/:id', to: 'shops#show'
@@ -43,7 +43,7 @@ Rails.application.routes.draw do
         get '/release_info', to: 'release_info#index'
         get '/release_info/:id', to: 'release_info#show'
         post '/release_info', to: 'release_info#create'
-        patch '/release_info/:id', to: 'release_info#update'
+        put '/release_info/:id', to: 'release_info#update'
         delete '/release_info/:id', to: 'release_info#destroy'
         # 購入履歴
         get '/purchases', to: 'purchases#index'
@@ -57,12 +57,12 @@ Rails.application.routes.draw do
         # 認証
         post '/sign_up', to: 'registers#create'
         get '/identity', to: 'members#identity'
-        patch '/profile', to: 'members#update'
+        put '/profile', to: 'members#update'
         # 発送情報
         get '/shipping_info', to: 'shipping_info#index'
         get '/shipping_info/:id', to: 'shipping_info#show'
         post '/shipping_info', to: 'shipping_info#create'
-        patch '/shipping_info/:id', to: 'shipping_info#update'
+        put '/shipping_info/:id', to: 'shipping_info#update'
         delete '/shipping_info/:id', to: 'shipping_info#destroy'
         # ショップ
         get '/shops', to: 'shops#index'
