@@ -1,4 +1,4 @@
-json.release_info do
+json.releaseInfo do
   json.array!(@release_info) do |release_info|
     json.id release_info.id
     json.title release_info.title
