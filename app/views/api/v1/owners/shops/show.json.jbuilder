@@ -1,6 +1,6 @@
 json.id @shop.id
 
-json.shopCategories @shop.shop_categories do |category|
+json.categories @shop.shop_categories do |category|
   json.id category.id
   json.name category.name
 end

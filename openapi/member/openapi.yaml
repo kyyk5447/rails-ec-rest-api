@@ -543,6 +543,25 @@ paths:
           in: query
           schema:
             type: integer
+        - name: shopCategoryId
+          in: query
+          description: |
+            ショップカテゴリID
+            - 1: メンズファッション
+            - 2: レディースファッション
+            - 3: キッズファッション
+            - 4: シューズ
+            - 5: バッグ
+            - 6: アクセサリー
+            - 7: スポーツ
+            - 8: アウトドア
+            - 9: コスメ・美容
+            - 10: ヘルス・ボディケア
+            - 11: フード・グルメ
+            - 12: インテリア・雑貨
+          schema:
+            type: integer
+            example: 1
       responses:
         "200":
           description: 成功
@@ -598,6 +617,23 @@ paths:
           in: query
           schema:
             type: integer
+        - name: itemCategoryId
+          in: query
+          description: |
+            商品カテゴリID
+            - 1: トップス
+            - 2: ボトムス
+            - 3: アウター
+            - 4: ワンピース
+            - 5: スーツ・フォーマル
+            - 6: バッグ
+            - 7: シューズ
+            - 8: アクセサリー
+            - 9: 帽子
+            - 10: 小物
+          schema:
+            type: integer
+            example: 1
       responses:
         "200":
           description: 成功
@@ -1365,7 +1401,7 @@ components:
       type: object
       required:
         - id
-        - shopCategories
+        - categories
         - imageUrl
         - name
         - description
@@ -1374,7 +1410,7 @@ components:
         id:
           type: integer
           example: 1
-        shopCategories:
+        categories:
           type: array
           items:
             $ref: "#/components/schemas/ShopCategory"
