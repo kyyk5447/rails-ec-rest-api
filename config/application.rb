@@ -2,6 +2,9 @@ require_relative 'boot'
 
 require 'rails/all'
 
+# キャメルケース変換のカスタムミドルウェアを読み込み
+require_relative '../app/middleware/camel_case_transformer'
+
 Bundler.require(*Rails.groups)
 
 module App
@@ -12,9 +15,13 @@ module App
     config.time_zone = 'Tokyo'
     config.active_record.default_timezone = :local
     config.i18n.default_locale = :ja
-    config.session_store :cookie_store, key: '_your_app_session'
+    config.session_store :cookie_store, key: 'ec_site_session'
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use config.session_store, config.session_options
+    
+    # form-data用の特別なミドルウェア
+    config.middleware.use CamelCaseTransformer
+
     config.hosts << 'rails-ec-rest-api.onrender.com'
   end
 end
