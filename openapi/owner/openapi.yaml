@@ -890,17 +890,17 @@ paths:
             schema:
               type: object
               required:
-                - release_info
+                - releaseInfo
               properties:
-                release_info:
+                releaseInfo:
                   type: object
                   required:
-                    - shop_id
+                    - shopId
                     - title
                     - body
                     - status
                   properties:
-                    shop_id:
+                    shopId:
                       type: integer
                       example: 47
                     title:
@@ -978,7 +978,6 @@ paths:
                   message:
                     type: string
                     example: "対象のお知らせが見つかりませんでした。"
-
     put:
       tags:
         - ReleaseInfo
@@ -998,9 +997,9 @@ paths:
             schema:
               type: object
               required:
-                - release_info
+                - releaseInfo
               properties:
-                release_info:
+                releaseInfo:
                   type: object
                   required:
                     - title
@@ -1103,7 +1102,7 @@ paths:
           in: query
           schema:
             type: integer
-        - name: shop_id
+        - name: shopId
           in: query
           required: true
           schema:
