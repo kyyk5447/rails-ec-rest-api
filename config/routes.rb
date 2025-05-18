@@ -26,7 +26,7 @@ Rails.application.routes.draw do
         # 認証
         post '/sign_up', to: 'registers#create'
         get '/identity', to: 'members#identity'
-        put '/profile', to: 'members#update'
+        put '/identity', to: 'members#update'
         # ショップ
         get '/shops', to: 'shops#index'
         get '/shops/:id', to: 'shops#show'

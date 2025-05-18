@@ -321,21 +321,14 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ShippingInfo"
-        "401":
-          description: 未認証
-          content:
-            application/json:
-              schema:
                 type: object
                 required:
-                  - message
+                  - shippingInfo
                 properties:
-                  message:
-                    type: string
-                    example: "ログインもしくはアカウント登録してください"
+                  shippingInfo:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ShippingInfo"
 
     post:
       tags:
@@ -343,8 +336,8 @@ paths:
       summary: 配送先作成
       security:
         - cookieAuth: []
+        - csrfToken: []
       requestBody:
-        required: true
         content:
           application/json:
             schema:
@@ -379,27 +372,6 @@ paths:
                     building:
                       type: string
                       example: "ビル101号"
-      responses:
-        "204":
-          description: 作成成功
-        "401":
-          description: 未認証
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - message
-                properties:
-                  message:
-                    type: string
-                    example: "ログインもしくはアカウント登録してください"
-        "422":
-          description: バリデーションエラー
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
 
   /shipping_info/{id}:
     get:
@@ -440,6 +412,7 @@ paths:
       summary: 配送先更新
       security:
         - cookieAuth: []
+        - csrfToken: []
       parameters:
         - name: id
           in: path
@@ -509,6 +482,7 @@ paths:
       summary: 配送先削除
       security:
         - cookieAuth: []
+        - csrfToken: []
       parameters:
         - name: id
           in: path
@@ -518,18 +492,6 @@ paths:
       responses:
         "204":
           description: 削除成功
-        "401":
-          description: 未認証
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - message
-                properties:
-                  message:
-                    type: string
-                    example: "ログインもしくはアカウント登録してください"
 
   /shops:
     get:
@@ -780,51 +742,25 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                required:
-                  - reviews
-                  - totalPages
-                  - totalCount
-                  - currentPage
-                  - nextPage
-                  - hasNext
-                properties:
-                  reviews:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Review"
-                  totalPages:
-                    type: integer
-                  totalCount:
-                    type: integer
-                  currentPage:
-                    type: integer
-                  nextPage:
-                    type: integer
-                    nullable: true
-                  hasNext:
-                    type: boolean
-        "401":
-          description: 未認証
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - message
-                properties:
-                  message:
-                    type: string
-                    example: "ログインもしくはアカウント登録してください"
+                allOf:
+                  - type: object
+                    required:
+                      - reviews
+                    properties:
+                      reviews:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Review"
+                  - $ref: "#/components/schemas/PaginatedResponse"
 
     post:
       tags:
         - Review
-      summary: レビュー投稿
+      summary: レビュー作成
       security:
         - cookieAuth: []
+        - csrfToken: []
       requestBody:
-        required: true
         content:
           application/json:
             schema:
@@ -852,27 +788,6 @@ paths:
                     rating:
                       type: integer
                       example: 3
-      responses:
-        "204":
-          description: 作成成功
-        "401":
-          description: 未認証
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - message
-                properties:
-                  message:
-                    type: string
-                    example: "ログインもしくはアカウント登録してください"
-        "422":
-          description: バリデーションエラー
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
 
   /reviews/{id}:
     delete:
@@ -881,6 +796,7 @@ paths:
       summary: レビュー削除
       security:
         - cookieAuth: []
+        - csrfToken: []
       parameters:
         - name: id
           in: path
@@ -890,18 +806,6 @@ paths:
       responses:
         "204":
           description: 削除成功
-        "401":
-          description: 未認証
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - message
-                properties:
-                  message:
-                    type: string
-                    example: "ログインもしくはアカウント登録してください"
 
   /release_info:
     get:
@@ -915,17 +819,27 @@ paths:
           in: query
           schema:
             type: integer
+        - name: shopId
+          in: query
+          required: true
+          schema:
+            type: integer
       responses:
         "200":
           description: 成功
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ReleaseInfo"
-                required:
-                  - releaseInfo
+                allOf:
+                  - type: object
+                    required:
+                      - releaseInfo
+                    properties:
+                      releaseInfo:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ReleaseInfo"
+                  - $ref: "#/components/schemas/PaginatedResponse"
 
   /release_info/{id}:
     get:
@@ -937,6 +851,11 @@ paths:
       parameters:
         - name: id
           in: path
+          required: true
+          schema:
+            type: integer
+        - name: shopId
+          in: query
           required: true
           schema:
             type: integer
@@ -966,70 +885,49 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                required:
-                  - favoriteItems
-                  - totalPages
-                  - totalCount
-                  - currentPage
-                  - nextPage
-                  - hasNext
-                properties:
-                  favoriteItems:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Item"
-                    example:
-                      - id: 3
-                        imageUrl: ""
-                        name: "デニムパンツ"
-                        description: "ストレートカットの定番デニム"
-                        price: 6980
-                        stock: 60
-                        createdAt: "2025-05-05T17:51:30.252+09:00"
-                      - id: 1
-                        imageUrl: ""
-                        name: "ベーシックTシャツ"
-                        description: "着回し抜群のコットンTシャツ"
-                        price: 1980
-                        stock: 99
-                        createdAt: "2025-05-05T17:51:30.235+09:00"
-                  totalPages:
-                    type: integer
-                    example: 1
-                  totalCount:
-                    type: integer
-                    example: 2
-                  currentPage:
-                    type: integer
-                    example: 1
-                  nextPage:
-                    type: integer
-                    nullable: true
-                    example: null
-                  hasNext:
-                    type: boolean
-                    example: false
-        "401":
-          description: 未認証
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - message
-                properties:
-                  message:
-                    type: string
-                    example: "ログインもしくはアカウント登録してください"
+                allOf:
+                  - type: object
+                    required:
+                      - favoriteItems
+                    properties:
+                      favoriteItems:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/FavoriteItem"
+                  - $ref: "#/components/schemas/PaginatedResponse"
 
-  /favorite_items/{id}:
-    put:
+    post:
       tags:
         - FavoriteItem
-      summary: お気に入り商品更新
+      summary: お気に入り商品追加
       security:
         - cookieAuth: []
+        - csrfToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - favoriteItem
+              properties:
+                favoriteItem:
+                  type: object
+                  required:
+                    - itemId
+                  properties:
+                    itemId:
+                      type: integer
+                      example: 1
+
+  /favorite_items/{id}:
+    delete:
+      tags:
+        - FavoriteItem
+      summary: お気に入り商品削除
+      security:
+        - cookieAuth: []
+        - csrfToken: []
       parameters:
         - name: id
           in: path
@@ -1038,19 +936,7 @@ paths:
             type: integer
       responses:
         "204":
-          description: 更新成功
-        "401":
-          description: 未認証
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - message
-                properties:
-                  message:
-                    type: string
-                    example: "ログインもしくはアカウント登録してください"
+          description: 削除成功
 
   /cart_items:
     get:
@@ -1065,38 +951,18 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/CartItem"
-                example:
-                  - id: 1
-                    imageUrl: ""
-                    name: "ベーシックTシャツ"
-                    description: "着回し抜群のコットンTシャツ"
-                    price: 1980
-                    quantity: 1
-                    stock: 100
-                    shopId: 1
-                  - id: 2
-                    imageUrl: ""
-                    name: "オーバーサイズパーカー"
-                    description: "ゆったりシルエットでこなれ感UP"
-                    price: 4980
-                    quantity: 3
-                    stock: 50
-                    shopId: 1
-        "401":
-          description: 未認証
-          content:
-            application/json:
-              schema:
                 type: object
                 required:
-                  - message
+                  - cartItems
+                  - totalPrice
                 properties:
-                  message:
-                    type: string
-                    example: "ログインもしくはアカウント登録してください"
+                  cartItems:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CartItem"
+                  totalPrice:
+                    type: integer
+                    example: 1980
 
     post:
       tags:
@@ -1104,16 +970,16 @@ paths:
       summary: カート商品追加
       security:
         - cookieAuth: []
+        - csrfToken: []
       requestBody:
-        required: true
         content:
           application/json:
             schema:
               type: object
               required:
-                - cart
+                - cartItem
               properties:
-                cart:
+                cartItem:
                   type: object
                   required:
                     - itemId
@@ -1121,39 +987,18 @@ paths:
                   properties:
                     itemId:
                       type: integer
-                      example: 41
+                      example: 1
                     quantity:
                       type: integer
                       example: 1
-      responses:
-        "204":
-          description: 追加成功
-        "401":
-          description: 未認証
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - message
-                properties:
-                  message:
-                    type: string
-                    example: "ログインもしくはアカウント登録してください"
-        "422":
-          description: バリデーションエラー
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
 
-  /cart_items/{id}:
     delete:
       tags:
         - CartItem
       summary: カート商品削除
       security:
         - cookieAuth: []
+        - csrfToken: []
       parameters:
         - name: id
           in: path
@@ -1163,18 +1008,6 @@ paths:
       responses:
         "204":
           description: 削除成功
-        "401":
-          description: 未認証
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - message
-                properties:
-                  message:
-                    type: string
-                    example: "ログインもしくはアカウント登録してください"
 
   /purchases:
     get:
@@ -1194,102 +1027,46 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                required:
-                  - purchases
-                  - totalPages
-                  - totalCount
-                  - currentPage
-                  - nextPage
-                  - hasNext
-                properties:
-                  purchases:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Purchase"
-                    example:
-                      - id: 2
-                        totalPrice: 16920
-                        createdAt: "2025-05-17T17:42:22.760+09:00"
-                        purchaseItems:
-                          - id: 3
-                            quantity: 1
-                            subtotal: 1980
-                            item:
-                              id: 1
-                              imageUrl: ""
-                              name: "ベーシックTシャツ"
-                              description: "着回し抜群のコットンTシャツ"
-                              price: 1980
-                              stock: 99
-                              status: 1
-                              shopId: 1
-                          - id: 4
-                            quantity: 3
-                            subtotal: 14940
-                            item:
-                              id: 2
-                              imageUrl: ""
-                              name: "オーバーサイズパーカー"
-                              description: "ゆったりシルエットでこなれ感UP"
-                              price: 4980
-                              stock: 47
-                              status: 1
-                              shopId: 1
-                  totalPages:
-                    type: integer
-                    example: 1
-                  totalCount:
-                    type: integer
-                    example: 1
-                  currentPage:
-                    type: integer
-                    example: 1
-                  nextPage:
-                    type: integer
-                    nullable: true
-                    example: null
-                  hasNext:
-                    type: boolean
-                    example: false
+                allOf:
+                  - type: object
+                    required:
+                      - purchases
+                    properties:
+                      purchases:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Purchase"
+                  - $ref: "#/components/schemas/PaginatedResponse"
 
     post:
       tags:
         - Purchase
-      summary: 商品購入
+      summary: 購入
       security:
         - cookieAuth: []
-      responses:
-        "201":
-          description: 購入成功
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - message
-                properties:
-                  message:
-                    type: string
-                    example: "購入が完了しました。"
-        "401":
-          description: 未認証
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - message
-                properties:
-                  message:
-                    type: string
-                    example: "ログインもしくはアカウント登録してください"
+        - csrfToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - purchase
+              properties:
+                purchase:
+                  type: object
+                  required:
+                    - shippingInfoId
+                  properties:
+                    shippingInfoId:
+                      type: integer
+                      example: 1
 
   /purchases/{id}:
-    delete:
+    get:
       tags:
         - Purchase
-      summary: 購入をキャンセル
+      summary: 購入履歴詳細取得
       security:
         - cookieAuth: []
       parameters:
@@ -1299,20 +1076,28 @@ paths:
           schema:
             type: integer
       responses:
-        "204":
-          description: 削除成功
-        "401":
-          description: 未認証
+        "200":
+          description: 成功
           content:
             application/json:
               schema:
-                type: object
-                required:
-                  - message
-                properties:
-                  message:
-                    type: string
-                    example: "ログインもしくはアカウント登録してください"
+                $ref: "#/components/schemas/Purchase"
+    delete:
+      tags:
+        - Purchase
+      summary: 購入履歴削除
+      security:
+        - cookieAuth: []
+        - csrfToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: 削除成功
 
 components:
   securitySchemes:
@@ -1320,10 +1105,17 @@ components:
       type: apiKey
       in: cookie
       name: _session_id
+    csrfToken:
+      type: apiKey
+      in: header
+      name: X-CSRF-TOKEN
+      description: CSRFトークン
 
   schemas:
     Error:
       type: object
+      required:
+        - errors
       properties:
         errors:
           type: array
@@ -1345,16 +1137,16 @@ components:
       properties:
         firstName:
           type: string
-          example: "花子"
+          example: "山田"
         firstNameKana:
           type: string
-          example: "ハナコ"
+          example: "ヤマダ"
         lastName:
           type: string
-          example: "佐藤"
+          example: "太郎"
         lastNameKana:
           type: string
-          example: "サトウ"
+          example: "タロウ"
         tel:
           type: string
           example: "07000000000"
@@ -1364,10 +1156,10 @@ components:
         birthday:
           type: string
           format: date
-          example: "1990-01-01"
+          example: "1990-12-12"
         email:
           type: string
-          example: "member@example.com"
+          example: "test1@example.com"
 
     ShopCategory:
       type: object
@@ -1377,24 +1169,9 @@ components:
       properties:
         id:
           type: integer
-          description: |
-            カテゴリID
-            - 1: メンズファッション
-            - 2: レディースファッション
-            - 3: キッズファッション
-            - 4: シューズ
-            - 5: バッグ
-            - 6: アクセサリー
-            - 7: スポーツ
-            - 8: アウトドア
-            - 9: コスメ・美容
-            - 10: ヘルス・ボディケア
-            - 11: フード・グルメ
-            - 12: インテリア・雑貨
           example: 1
         name:
           type: string
-          description: カテゴリの表示名
           example: "メンズファッション"
 
     Shop:
@@ -1437,22 +1214,9 @@ components:
       properties:
         id:
           type: integer
-          description: |
-            カテゴリID
-            - 1: トップス
-            - 2: ボトムス
-            - 3: アウター
-            - 4: ワンピース
-            - 5: スーツ・フォーマル
-            - 6: バッグ
-            - 7: シューズ
-            - 8: アクセサリー
-            - 9: 帽子
-            - 10: 小物
           example: 1
         name:
           type: string
-          description: カテゴリの表示名
           example: "トップス"
 
     Item:
@@ -1460,13 +1224,12 @@ components:
       required:
         - id
         - categories
-        - imageUrl
         - name
-        - description
         - price
         - stock
+        - status
         - createdAt
-        - reviews
+        - shop
       properties:
         id:
           type: integer
@@ -1480,7 +1243,7 @@ components:
               name: "トップス"
         imageUrl:
           type: string
-          example: ""
+          example: "https://example.com/images/items/1.jpg"
         name:
           type: string
           example: "ベーシックTシャツ"
@@ -1493,40 +1256,41 @@ components:
         stock:
           type: integer
           example: 100
+        status:
+          type: integer
+          example: 1
         createdAt:
           type: string
           format: date-time
-          example: "2025-05-05T17:51:30.235+09:00"
-        reviews:
-          type: array
-          items:
-            $ref: "#/components/schemas/Review"
-          example:
-            - id: 1
-              title: "気に入りました！"
-              comment: "シンプルで着心地も良く、何枚も欲しくなります。"
-              rating: 5
+          example: "2024-04-19T10:00:00.000Z"
+        shop:
+          $ref: "#/components/schemas/Shop"
 
     Review:
       type: object
       required:
         - id
-        - title
-        - comment
         - rating
+        - comment
+        - createdAt
+        - memberName
       properties:
         id:
           type: integer
           example: 1
-        title:
-          type: string
-          example: "気に入りました！"
-        comment:
-          type: string
-          example: "シンプルで着心地も良く、何枚も欲しくなります。"
         rating:
           type: integer
           example: 5
+        comment:
+          type: string
+          example: "とても良い商品でした。"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-04-19T10:00:00.000Z"
+        memberName:
+          type: string
+          example: "山田 太郎"
 
     ShippingInfo:
       type: object
@@ -1619,6 +1383,39 @@ components:
           type: integer
           example: 1
 
+    FavoriteItem:
+      type: object
+      required:
+        - id
+        - imageUrl
+        - name
+        - description
+        - price
+        - stock
+        - shopId
+      properties:
+        id:
+          type: integer
+          example: 1
+        imageUrl:
+          type: string
+          example: ""
+        name:
+          type: string
+          example: "ベーシックTシャツ"
+        description:
+          type: string
+          example: "着回し抜群のコットンTシャツ"
+        price:
+          type: integer
+          example: 1980
+        stock:
+          type: integer
+          example: 100
+        shopId:
+          type: integer
+          example: 1
+
     Purchase:
       type: object
       required:
@@ -1629,69 +1426,40 @@ components:
       properties:
         id:
           type: integer
-          example: 2
+          example: 1
         totalPrice:
           type: integer
-          example: 16920
+          example: 1980
         createdAt:
           type: string
           format: date-time
-          example: "2025-05-17T17:42:22.760+09:00"
+          example: "2024-04-19T10:00:00.000Z"
         purchaseItems:
           type: array
           items:
             type: object
             required:
               - id
+              - name
               - quantity
+              - price
               - subtotal
-              - item
             properties:
               id:
                 type: integer
-                example: 3
+                example: 1
+              name:
+                type: string
+                example: "ベーシックTシャツ"
               quantity:
                 type: integer
                 example: 1
+              price:
+                type: integer
+                example: 1980
               subtotal:
                 type: integer
                 example: 1980
-              item:
-                type: object
-                required:
-                  - id
-                  - imageUrl
-                  - name
-                  - description
-                  - price
-                  - stock
-                  - status
-                  - shopId
-                properties:
-                  id:
-                    type: integer
-                    example: 1
-                  imageUrl:
-                    type: string
-                    example: ""
-                  name:
-                    type: string
-                    example: "ベーシックTシャツ"
-                  description:
-                    type: string
-                    example: "着回し抜群のコットンTシャツ"
-                  price:
-                    type: integer
-                    example: 1980
-                  stock:
-                    type: integer
-                    example: 99
-                  status:
-                    type: integer
-                    example: 1
-                  shopId:
-                    type: integer
-                    example: 1
 
     PaginatedResponse:
       type: object
