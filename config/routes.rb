@@ -57,7 +57,7 @@ Rails.application.routes.draw do
         # 認証
         post '/sign_up', to: 'registers#create'
         get '/identity', to: 'members#identity'
-        put '/profile', to: 'members#update'
+        put '/identity', to: 'members#update'
         # 発送情報
         get '/shipping_info', to: 'shipping_info#index'
         get '/shipping_info/:id', to: 'shipping_info#show'

@@ -1,4 +1,4 @@
-openapi: 3.0.0
+openapi: 3.0.2
 info:
   title: EC Site Owner API
   version: 1.0.0
@@ -218,8 +218,7 @@ paths:
                     type: string
                     example: "ログインもしくはアカウント登録してください"
 
-  /profile:
-    patch:
+    put:
       tags:
         - Owner
       summary: オーナー情報更新
